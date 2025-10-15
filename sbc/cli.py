@@ -14,12 +14,16 @@ def cli():
             lineas = archivo.readlines()
 
         # Almacenar las líneas leídas en una lista
-        base_conocimiento = [linea.strip() for linea in lineas]  # Eliminar saltos de línea
+        base_conocimiento = [] 
+        for linea in lineas:
+            # Suponiendo que los datos están separados por comas
+            tripleta = tuple(linea.strip().split(' '))
+            base_conocimiento.append(tripleta)
 
-        # Mostrar las líneas para verificar
+         # Mostrar las tripletas para verificar
         print("Base de conocimiento cargada:")
-        for linea in base_conocimiento:
-            print(linea)
+        for tripleta in base_conocimiento:
+            print(f"{tripleta[0]} {tripleta[1]} {tripleta[2]}")
 
     except FileNotFoundError:
         print(f"Error: El archivo {archivo_base_conocimiento} no se encuentra.")
