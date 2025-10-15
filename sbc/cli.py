@@ -20,10 +20,31 @@ def cli():
             tripleta = tuple(linea.strip().split(' '))
             base_conocimiento.append(tripleta)
 
-         # Mostrar las tripletas para verificar
-        print("Base de conocimiento cargada:")
-        for tripleta in base_conocimiento:
-            print(f"{tripleta[0]} {tripleta[1]} {tripleta[2]}")
+        # Preguntar por tripleta
+        continuar = True
+        while continuar:
+            usuario = input("Tripleta: ").strip()
+            try:
+                usuario_tripleta = tuple(usuario.split())
+                assert len(usuario_tripleta) == 3, "Debe tener exactamente 3 elementos (sujeto, predicado, objeto)."
+
+                if usuario_tripleta in base_conocimiento:
+                    print("Esta en la base de conocimiento\n")
+                else:
+                    print("No esta en la base de conocimiento\n")
+
+            except AssertionError as e:
+                print(f"Error: {e}\n")
+            except Exception:
+                print("Error: la consulta tiene que tener el formato 'sujeto predicado objeto'.\n")
+
+            # Preguntar si desea continuar
+            respuesta = input("¿Deseas terminar la sesión? (s/n): ").strip().lower()
+            if respuesta in ("s", "si", "sí"):
+                continuar = False
+                print("\n Sesión finalizada.")
+            
+            
 
     except FileNotFoundError:
         print(f"Error: El archivo {archivo_base_conocimiento} no se encuentra.")
