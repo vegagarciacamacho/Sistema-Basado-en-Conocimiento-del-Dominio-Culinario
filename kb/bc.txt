@@ -1,2 +1,8 @@
 tomate cantidad muchos
+tomate sabor rico
 cebolla cantidad muchos
+cebolla color morado
+pera cantidad poca
+pera sabor dulce
+lechuca cantidad poca
+lechuca tipo iceberg
