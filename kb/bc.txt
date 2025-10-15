@@ -2,7 +2,7 @@ tomate cantidad muchos
 tomate sabor rico
 cebolla cantidad muchos
 cebolla color morado
-pera cantidad poca
+pera cantidad pocas
 pera sabor dulce
-lechuca cantidad poca
-lechuca tipo iceberg
+lechuga cantidad pocas
+lechuga tipo iceberg
