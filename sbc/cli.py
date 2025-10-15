@@ -25,3 +25,6 @@ def cli():
         print(f"Error: El archivo {archivo_base_conocimiento} no se encuentra.")
     except Exception as e:
         print(f"Ha ocurrido un error: {e}")
+
+
+cli()
