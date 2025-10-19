@@ -6,3 +6,5 @@ pera cantidad pocas
 pera sabor dulce
 lechuga cantidad pocas
 lechuga tipo iceberg
+vino tinto marida carne
+vino tinto color rojo

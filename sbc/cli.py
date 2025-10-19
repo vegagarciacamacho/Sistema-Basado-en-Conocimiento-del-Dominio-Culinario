@@ -16,22 +16,47 @@ def cli():
         # Almacenar las líneas leídas en una lista
         base_conocimiento = [] 
         for linea in lineas:
-            # Suponiendo que los datos están separados por comas
-            tripleta = tuple(linea.strip().split(' '))
-            base_conocimiento.append(tripleta)
+            # Los datos se separan por espacios
+            palabras = linea.strip().split()
+            #Si la línea tiene menos de tres palabras no es válida
+            if len(palabras) < 3:
+                print(f"Linea no valida")
+            else:
+                # Dividimos la tripleta en Sujeto-Predicado-Objeto
+                # El predicado es la palabra del medio 
+                mitad = len(palabras) // 2
+                predicado = palabras[mitad]
+
+                # El sujeto son las palabras de antes del predicado
+                sujeto = " ".join(palabras[:mitad])
+
+                # El objeto son las palabras de después del predicado
+                objeto = " ".join(palabras[mitad + 1:])
+
+                tripleta = (sujeto, predicado, objeto)
+                base_conocimiento.append(tripleta)
 
         # Preguntar por tripleta
         continuar = True
         while continuar:
             usuario = input("Tripleta: ").strip()
             try:
-                usuario_tripleta = tuple(usuario.split())
-                assert len(usuario_tripleta) == 3, "Debe tener exactamente 3 elementos (sujeto, predicado, objeto)."
+                palabras = usuario.split()
+                # Comprobamos que la tripleta tenga las palabras suficientes
+                if len(palabras) < 3:
+                    raise AssertionError("Debe tener al menos 3 palabras")
+                
+                # Volvemos a comprobar las palabras de la tripleta
+                mitad = len(palabras) // 2
+                predicado = palabras[mitad]
+                sujeto = " ".join(palabras[:mitad])
+                objeto = " ".join(palabras[mitad + 1: ])
+                usuario_tripleta = (sujeto, predicado, objeto)
 
                 if usuario_tripleta in base_conocimiento:
-                    print("Esta en la base de conocimiento\n")
+                    print("Está en la base de conocimiento\n")
                 else:
-                    print("No esta en la base de conocimiento\n")
+                    print("No está en la base de conocimiento\n")
 
             except AssertionError as e:
                 print(f"Error: {e}\n")
