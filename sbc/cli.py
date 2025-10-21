@@ -48,6 +48,11 @@ def cli():
             sujeto = " ".join(palabras[:mitad])
             objeto = " ".join(palabras[mitad + 1:])
 
+            # Verificamos si hay variables
+            tiene_variables = (
+                sujeto[0].isupper() or predicado[0].isupper() or objeto[0].isupper()
+            )
+
             resultados = []
 
             for (s, p, o) in base_conocimiento:
@@ -65,15 +70,25 @@ def cli():
 
                     resultados.append(sustitucion)
 
-            if resultados:
-                print("\nResultados encontrados:")
-                for r in resultados:
-                    for var, valor in r.items():
-                        print(f"{var} = {valor}")
-                print()
+            # Mostrar resultados según el tipo de consulta
+            if tiene_variables:
+                if resultados:
+                    print("\nResultados encontrados:")
+                    for r in resultados:
+                        for var, valor in r.items():
+                            print(f"{var} = {valor}")
+                    print()
+                else:
+                    print("No se encontraron coincidencias.\n")
             else:
-                print("No se encontraron coincidencias.\n")
+                # Consulta concreta: respuesta Sí / No
+                tripleta = (sujeto, predicado, objeto)
+                if tripleta in base_conocimiento:
+                    print("Sí, está en la base de conocimiento.\n")
+                else:
+                    print("No, no está en la base de conocimiento.\n")
 
+            # Preguntar si desea continuar
             respuesta = input("¿Deseas terminar la sesión? (s/n): ").strip().lower()
             if respuesta in ("s", "si", "sí"):
                 print("\nSesión finalizada.")
