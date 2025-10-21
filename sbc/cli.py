@@ -1,75 +1,83 @@
-#sbc/cli.py
+# sbc/cli.py
 import click
 from pathlib import Path
 
 @click.command()
 def cli():
     """Comando para cargar y mostrar la base de conocimiento"""
-    # Usamos pathlib para manejar la ruta de forma segura
     archivo_base_conocimiento = Path(__file__).parent.parent / 'kb' / 'bc.txt'
 
     try:
-        # Leer el archivo de texto
         with archivo_base_conocimiento.open('r') as archivo:
             lineas = archivo.readlines()
 
-        # Almacenar las líneas leídas en una lista
-        base_conocimiento = [] 
+        # Leer las tripletas (admite sujetos y objetos con varias palabras)
+        base_conocimiento = []
         for linea in lineas:
-            # Los datos se separan por espacios
             palabras = linea.strip().split()
-            #Si la línea tiene menos de tres palabras no es válida
             if len(palabras) < 3:
-                print(f"Linea no valida")
+                print(f"Línea no válida (menos de 3 palabras): {linea.strip()}")
+                continue
+
+            # El predicado es la palabra del medio
+            mitad = len(palabras) // 2
+            predicado = palabras[mitad]
+            sujeto = " ".join(palabras[:mitad])
+            objeto = " ".join(palabras[mitad + 1:])
+            base_conocimiento.append((sujeto, predicado, objeto))
+
+        print("Base de conocimiento cargada correctamente.\n")
+
+        # Bucle de interacción
+        while True:
+            usuario = input("Consulta (sujeto predicado objeto): ").strip()
+            if not usuario:
+                continue
+
+            palabras = usuario.split()
+            if len(palabras) < 2:
+                print("Error: la consulta debe tener al menos 2 palabras.\n")
+                continue
+
+            # Si el usuario no pone objeto, asumimos una variable por defecto
+            if len(palabras) == 2:
+                palabras.append("X")
+
+            mitad = len(palabras) // 2
+            predicado = palabras[mitad]
+            sujeto = " ".join(palabras[:mitad])
+            objeto = " ".join(palabras[mitad + 1:])
+
+            resultados = []
+
+            for (s, p, o) in base_conocimiento:
+                if ((sujeto == s or sujeto[0].isupper()) and
+                    (predicado == p or predicado[0].isupper()) and
+                    (objeto == o or objeto[0].isupper())):
+
+                    sustitucion = {}
+                    if sujeto and sujeto[0].isupper():
+                        sustitucion[sujeto] = s
+                    if predicado and predicado[0].isupper():
+                        sustitucion[predicado] = p
+                    if objeto and objeto[0].isupper():
+                        sustitucion[objeto] = o
+
+                    resultados.append(sustitucion)
+
+            if resultados:
+                print("\nResultados encontrados:")
+                for r in resultados:
+                    for var, valor in r.items():
+                        print(f"{var} = {valor}")
+                print()
             else:
-                # Dividimos la tripleta en Sujeto-Predicado-Objeto
-                # El predicado es la palabra del medio 
-                mitad = len(palabras) // 2
-                predicado = palabras[mitad]
+                print("No se encontraron coincidencias.\n")
 
-                # El sujeto son las palabras de antes del predicado
-                sujeto = " ".join(palabras[:mitad])
-
-                # El objeto son las palabras de después del predicado
-                objeto = " ".join(palabras[mitad + 1:])
-
-                tripleta = (sujeto, predicado, objeto)
-                base_conocimiento.append(tripleta)
-
-        # Preguntar por tripleta
-        continuar = True
-        while continuar:
-            usuario = input("Tripleta: ").strip()
-            try:
-                palabras = usuario.split()
-                # Comprobamos que la tripleta tenga las palabras suficientes
-                if len(palabras) < 3:
-                    raise AssertionError("Debe tener al menos 3 palabras")
-                
-                # Volvemos a comprobar las palabras de la tripleta
-                mitad = len(palabras) // 2
-                predicado = palabras[mitad]
-                sujeto = " ".join(palabras[:mitad])
-                objeto = " ".join(palabras[mitad + 1: ])
-                usuario_tripleta = (sujeto, predicado, objeto)
-
-                if usuario_tripleta in base_conocimiento:
-                    print("Está en la base de conocimiento\n")
-                else:
-                    print("No está en la base de conocimiento\n")
-
-            except AssertionError as e:
-                print(f"Error: {e}\n")
-            except Exception:
-                print("Error: la consulta tiene que tener el formato 'sujeto predicado objeto'.\n")
-
-            # Preguntar si desea continuar
             respuesta = input("¿Deseas terminar la sesión? (s/n): ").strip().lower()
             if respuesta in ("s", "si", "sí"):
-                continuar = False
-                print("\n Sesión finalizada.")
-            
-            
+                print("\nSesión finalizada.")
+                break
 
     except FileNotFoundError:
         print(f"Error: El archivo {archivo_base_conocimiento} no se encuentra.")
@@ -77,4 +85,5 @@ def cli():
         print(f"Ha ocurrido un error: {e}")
 
 
-cli()
+if __name__ == "__main__":
+    cli()
