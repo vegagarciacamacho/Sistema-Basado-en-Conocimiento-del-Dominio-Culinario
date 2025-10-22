@@ -2,18 +2,14 @@
 import click
 from pathlib import Path
 
-@click.command()
-def cli():
-    """Comando para cargar y mostrar la base de conocimiento"""
-    archivo_base_conocimiento = Path(__file__).parent.parent / 'kb' / 'bc.txt'
 
-    try:
-        with archivo_base_conocimiento.open('r') as archivo:
-            lineas = archivo.readlines()
-
-        # Leer las tripletas (admite sujetos y objetos con varias palabras)
-        base_conocimiento = []
-        for linea in lineas:
+def leer_base_conocimiento(ruta_archivo):
+    """
+    Generador que lee tripletas de la base de conocimiento.
+    Devuelve una tripleta (sujeto, predicado, objeto) por cada línea válida.
+    """
+    with ruta_archivo.open('r') as archivo:
+        for linea in archivo:
             palabras = linea.strip().split()
             if len(palabras) < 3:
                 print(f"Línea no válida (menos de 3 palabras): {linea.strip()}")
@@ -24,11 +20,42 @@ def cli():
             predicado = palabras[mitad]
             sujeto = " ".join(palabras[:mitad])
             objeto = " ".join(palabras[mitad + 1:])
-            base_conocimiento.append((sujeto, predicado, objeto))
 
+            yield (sujeto, predicado, objeto)
+
+
+def consultar(base_conocimiento, sujeto, predicado, objeto):
+    """
+    Generador que produce resultados de consulta.
+    Devuelve diccionarios con las sustituciones de variables.
+    """
+    for (s, p, o) in base_conocimiento:
+        if ((sujeto == s or sujeto[0].isupper()) and
+            (predicado == p or predicado[0].isupper()) and
+            (objeto == o or objeto[0].isupper())):
+
+            sustitucion = {}
+            if sujeto[0].isupper():
+                sustitucion[sujeto] = s
+            if predicado[0].isupper():
+                sustitucion[predicado] = p
+            if objeto[0].isupper():
+                sustitucion[objeto] = o
+
+            yield sustitucion
+
+
+@click.command()
+def cli():
+    """Comando para cargar y consultar la base de conocimiento."""
+    archivo_base_conocimiento = Path(__file__).parent.parent / 'kb' / 'bc.txt'
+
+    try:
+        # Cargar base de conocimiento como lista (podrías dejarlo como generador si prefieres)
+        base_conocimiento = list(leer_base_conocimiento(archivo_base_conocimiento))
         print("Base de conocimiento cargada correctamente.\n")
 
-        # Bucle de interacción
+        # Bucle interactivo
         while True:
             usuario = input("Consulta (sujeto predicado objeto): ").strip()
             if not usuario:
@@ -53,25 +80,8 @@ def cli():
                 sujeto[0].isupper() or predicado[0].isupper() or objeto[0].isupper()
             )
 
-            resultados = []
-
-            for (s, p, o) in base_conocimiento:
-                if ((sujeto == s or sujeto[0].isupper()) and
-                    (predicado == p or predicado[0].isupper()) and
-                    (objeto == o or objeto[0].isupper())):
-
-                    sustitucion = {}
-                    if sujeto and sujeto[0].isupper():
-                        sustitucion[sujeto] = s
-                    if predicado and predicado[0].isupper():
-                        sustitucion[predicado] = p
-                    if objeto and objeto[0].isupper():
-                        sustitucion[objeto] = o
-
-                    resultados.append(sustitucion)
-
-            # Mostrar resultados según el tipo de consulta
             if tiene_variables:
+                resultados = list(consultar(base_conocimiento, sujeto, predicado, objeto))
                 if resultados:
                     print("\nResultados encontrados:")
                     for r in resultados:
@@ -82,8 +92,7 @@ def cli():
                     print("No se encontraron coincidencias.\n")
             else:
                 # Consulta concreta: respuesta Sí / No
-                tripleta = (sujeto, predicado, objeto)
-                if tripleta in base_conocimiento:
+                if (sujeto, predicado, objeto) in base_conocimiento:
                     print("Sí, está en la base de conocimiento.\n")
                 else:
                     print("No, no está en la base de conocimiento.\n")
