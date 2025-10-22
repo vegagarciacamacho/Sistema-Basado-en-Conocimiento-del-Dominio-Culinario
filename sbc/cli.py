@@ -1,49 +1,7 @@
 # sbc/cli.py
 import click
 from pathlib import Path
-
-
-def leer_base_conocimiento(ruta_archivo):
-    """
-    Generador que lee tripletas de la base de conocimiento.
-    Devuelve una tripleta (sujeto, predicado, objeto) por cada línea válida.
-    """
-    with ruta_archivo.open('r') as archivo:
-        for linea in archivo:
-            palabras = linea.strip().split()
-            if len(palabras) < 3:
-                print(f"Línea no válida (menos de 3 palabras): {linea.strip()}")
-                continue
-
-            # El predicado es la palabra del medio
-            mitad = len(palabras) // 2
-            predicado = palabras[mitad]
-            sujeto = " ".join(palabras[:mitad])
-            objeto = " ".join(palabras[mitad + 1:])
-
-            yield (sujeto, predicado, objeto)
-
-
-def consultar(base_conocimiento, sujeto, predicado, objeto):
-    """
-    Generador que produce resultados de consulta.
-    Devuelve diccionarios con las sustituciones de variables.
-    """
-    for (s, p, o) in base_conocimiento:
-        if ((sujeto == s or sujeto[0].isupper()) and
-            (predicado == p or predicado[0].isupper()) and
-            (objeto == o or objeto[0].isupper())):
-
-            sustitucion = {}
-            if sujeto[0].isupper():
-                sustitucion[sujeto] = s
-            if predicado[0].isupper():
-                sustitucion[predicado] = p
-            if objeto[0].isupper():
-                sustitucion[objeto] = o
-
-            yield sustitucion
-
+from sbc.motor import leer_base_conocimiento, consultar
 
 @click.command()
 def cli():
