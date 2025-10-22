@@ -12,25 +12,57 @@
 
 from pathlib import Path
 from sbc.clases import Tripleta, Sustitucion
+from pyparsing import Word, alphanums, Suppress, restOfLine, Combine, MatchFirst, Literal, Group, Optional
 
 def leer_base_conocimiento(ruta_archivo):
     """
-    Generador que lee tripletas de la base de conocimiento.
-    Devuelve una instancia de Tripleta por cada línea válida.
+    Generador que lee hechos y reglas de la base del conocimient.
+    Devuelve un diccionario de hechos y reglas como lista de tripletas.
     """
-    with ruta_archivo.open('r') as archivo:
+
+    # Definimos el formato esperado usando pyparsing
+    palabra = Word(alphanums + "áéíóúñüÁÉÍÓÚÑÜ_-")
+    comentario = Suppress("#" + restOfLine)
+
+    # Definimos tripleta
+    tripleta3 = Group(palabra("sujeto")                           + palabra("predicado") + palabra("objeto"))
+    tripleta4 = Group(Combine(palabra + " " + palabra)("sujeto")  + palabra("predicado") + palabra("objeto")) # Suponemos sujeto de 2 palabras
+
+    tripleta = tripleta4 | tripleta3
+
+    # Definimos regla
+    flecha = Suppress(Optional(" ") + Literal("<-") + Optional(" "))
+    regla = Group(tripleta)("causa") + flecha + Group(tripleta)("efecto")
+
+    # Definimos el parser completo
+    parser_linea = regla | tripleta
+
+    with Path(ruta_archivo).open('r') as archivo:
         for linea in archivo:
-            palabras = linea.strip().split()
-            if len(palabras) < 3:
-                print(f"Línea no válida (menos de 3 palabras): {linea.strip()}")
+            linea = linea.strip()
+
+            print(linea)
+            
+            if not linea or linea.startswith("#"):
+                continue  # Saltamos líneas vacías y comentarios
+
+            try:
+                resultado = parser_linea.parseString(linea)
+
+                if 'causa' in resultado and 'efecto' in resultado:
+                    # Es una regla
+                    causa = resultado['causa'][0]
+                    efecto = resultado['efecto'][0]
+
+                    yield Tripleta(causa['sujeto'], causa['predicado'], causa['objeto'])
+                    yield Tripleta(efecto['sujeto'], efecto['predicado'], efecto['objeto'])
+                else:
+                    # Es un hecho
+                    hecho = resultado[0]
+                    yield Tripleta(hecho['sujeto'], hecho['predicado'], hecho['objeto'])
+            except Exception as e:
+                print(f"Error al parsear la línea: {linea}\n{e}")
                 continue
-
-            mitad = len(palabras) // 2
-            predicado = palabras[mitad]
-            sujeto = " ".join(palabras[:mitad])
-            objeto = " ".join(palabras[mitad + 1:])
-            yield Tripleta(sujeto, predicado, objeto)
-
 
 def consultar(base_conocimiento, sujeto, predicado, objeto):
     """
