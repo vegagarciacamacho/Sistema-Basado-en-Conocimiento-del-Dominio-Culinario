@@ -1,3 +1,4 @@
+# Hechos:
 tomate cantidad muchos
 tomate sabor rico
 cebolla cantidad muchos
@@ -68,3 +69,17 @@ sal tipo marina
 sal uso cocina
 limon sabor acido
 limon color amarillo
+
+# Reglas:
+pan contiene gluten <- persona alergia gluten
+queso contiene lactosa <- persona intolerante lactosa
+miel sabor dulce <- persona prefiere alimentos dulces
+vino blanco marida con pescado <- plato incluye pescado
+plátano sabor dulce <- persona prefiere frutas dulces
+ensalada contiene lechuga <- receta incluye ensalada
+sopa contiene cebolla <- receta incluye sopa
+pizza contiene tomate <- receta incluye pizza
+paella contiene arroz <- receta incluye paella
+pan tipo integral <- receta incluye pan integral
+sopa contiene zanahoria <- receta incluye zanahoria
+tomate cantidad muchos <- ensalda tiene tomate
