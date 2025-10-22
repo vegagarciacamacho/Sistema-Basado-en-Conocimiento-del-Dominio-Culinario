@@ -1,4 +1,12 @@
 # sbc/cli.py
+# Descripción: Interfaz de línea de comandos (CLI) basada en click que carga una
+#              base de conocimiento desde el archivo kb/bc.txt y permite realizar
+#              consultas interactivas en forma de tripletas (sujeto predicado objeto).
+#              Soporta consultas con variables (nombres que empiezan por mayúscula)
+#              para obtener sustituciones y consultas concretas que responden Sí/No.
+#              Utiliza las funciones leer_base_conocimiento y consultar del módulo sbc.motor.
+
+
 import click
 from pathlib import Path
 from sbc.motor import leer_base_conocimiento, consultar

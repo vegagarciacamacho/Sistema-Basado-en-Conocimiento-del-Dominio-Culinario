@@ -1,4 +1,15 @@
 # sbc/motor.py
+# Descripción: Módulo 'motor' que proporciona utilidades para manejar una base
+#              de conocimiento representada como tripletas (sujeto, predicado, objeto).
+#              Contiene:
+#                - leer_base_conocimiento(ruta): generador que lee un archivo de
+#                  base de conocimiento y emite cada tripleta como una tupla.
+#                - consultar(base, sujeto, predicado, objeto): generador que
+#                  busca coincidencias en la base y devuelve diccionarios con
+#                  sustituciones para variables (nombres que empiezan por mayúscula).
+#              El formato esperado por línea es: palabras separadas por espacios;
+#              el predicado se toma como la palabra central de la línea.
+
 from pathlib import Path
 
 def leer_base_conocimiento(ruta_archivo):
