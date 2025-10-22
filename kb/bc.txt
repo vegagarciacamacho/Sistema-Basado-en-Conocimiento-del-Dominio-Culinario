@@ -8,3 +8,63 @@ lechuga cantidad pocas
 lechuga tipo iceberg
 vino tinto marida carne
 vino tinto color rojo
+manzana color roja
+manzana sabor acido
+manzana temporada otoño
+manzana origen espana
+manzana cantidad muchas
+manzana tipo fuji
+manzana calorias 52
+platano color amarillo
+platano sabor dulce
+platano cantidad muchas
+platano origen ecuador
+platano maduro textura blanda
+banana cantidad pocas
+zanahoria color naranja
+zanahoria sabor dulce
+zanahoria contiene betacaroteno
+pimiento color rojo
+pimiento color verde
+pimiento picante leve
+pepino color verde
+pepino fresco textura crujiente
+ajo sabor fuerte
+ajo origen china
+aceite oliva origen espana
+aceite oliva sabor suave
+queso tipo cheddar
+queso sabor salado
+leche origen vaca
+leche tipo descremada
+pollo tipo pechuga
+pollo sabor neutro
+carne vacuna corte lomo
+pescado tipo salmon
+pescado origen oceano
+vino blanco marida pescado
+vino rosado color claro
+cerveza tipo lager
+cerveza alcohol moderado
+pan tipo integral
+pan sabor neutro
+arroz tipo basmati
+arroz origen india
+pasta tipo spaghetti
+pasta coccion 8min
+tomate origen invernadero
+cebolla sabor intenso
+pera color verde
+lechuga textura crujiente
+vino tinto cuerpo pleno
+vino tinto origen rioja
+aceituna color verde
+aceituna sabor salado
+miel origen abejas
+miel sabor dulce
+azucar tipo blanca
+azucar cantidad mucha
+sal tipo marina
+sal uso cocina
+limon sabor acido
+limon color amarillo
