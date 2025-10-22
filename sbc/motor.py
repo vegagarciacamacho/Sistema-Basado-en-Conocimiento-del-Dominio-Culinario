@@ -40,8 +40,6 @@ def leer_base_conocimiento(ruta_archivo):
     with Path(ruta_archivo).open('r') as archivo:
         for linea in archivo:
             linea = linea.strip()
-
-            print(linea)
             
             if not linea or linea.startswith("#"):
                 continue  # Saltamos líneas vacías y comentarios
