@@ -11,11 +11,12 @@
 #              el predicado se toma como la palabra central de la línea.
 
 from pathlib import Path
+from sbc.clases import Tripleta, Sustitucion
 
 def leer_base_conocimiento(ruta_archivo):
     """
     Generador que lee tripletas de la base de conocimiento.
-    Devuelve una tripleta (sujeto, predicado, objeto) por cada línea válida.
+    Devuelve una instancia de Tripleta por cada línea válida.
     """
     with ruta_archivo.open('r') as archivo:
         for linea in archivo:
@@ -28,20 +29,27 @@ def leer_base_conocimiento(ruta_archivo):
             predicado = palabras[mitad]
             sujeto = " ".join(palabras[:mitad])
             objeto = " ".join(palabras[mitad + 1:])
-            yield (sujeto, predicado, objeto)
+            yield Tripleta(sujeto, predicado, objeto)
 
 
 def consultar(base_conocimiento, sujeto, predicado, objeto):
     """
     Generador que produce resultados de consulta.
-    Devuelve diccionarios con las sustituciones de variables.
+    Devuelve instancias de Sustitucion con las sustituciones de variables.
+    Acepta como base elementos Tripleta o tuplas/listas de 3 elementos.
     """
-    for (s, p, o) in base_conocimiento:
+    for entrada in base_conocimiento:
+        # soportar Tripleta y tuplas/listas
+        if isinstance(entrada, Tripleta):
+            s, p, o = entrada.sujeto, entrada.predicado, entrada.objeto
+        else:
+            s, p, o = entrada
+
         if ((sujeto == s or sujeto[0].isupper()) and
             (predicado == p or predicado[0].isupper()) and
             (objeto == o or objeto[0].isupper())):
 
-            sustitucion = {}
+            sustitucion = Sustitucion()
             if sujeto[0].isupper():
                 sustitucion[sujeto] = s
             if predicado[0].isupper():
@@ -50,3 +58,5 @@ def consultar(base_conocimiento, sujeto, predicado, objeto):
                 sustitucion[objeto] = o
 
             yield sustitucion
+
+

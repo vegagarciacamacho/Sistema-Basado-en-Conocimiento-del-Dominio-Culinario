@@ -10,6 +10,7 @@
 import click
 from pathlib import Path
 from sbc.motor import leer_base_conocimiento, consultar
+from sbc.clases import Tripleta
 
 @click.command()
 def cli():
@@ -17,7 +18,7 @@ def cli():
     archivo_base_conocimiento = Path(__file__).parent.parent / 'kb' / 'bc.txt'
 
     try:
-        # Cargar base de conocimiento como lista (podrías dejarlo como generador si prefieres)
+        # Cargar base de conocimiento como lista de Tripleta
         base_conocimiento = list(leer_base_conocimiento(archivo_base_conocimiento))
         print("Base de conocimiento cargada correctamente.\n")
 
@@ -58,7 +59,7 @@ def cli():
                     print("No se encontraron coincidencias.\n")
             else:
                 # Consulta concreta: respuesta Sí / No
-                if (sujeto, predicado, objeto) in base_conocimiento:
+                if Tripleta(sujeto, predicado, objeto) in base_conocimiento:
                     print("Sí, está en la base de conocimiento.\n")
                 else:
                     print("No, no está en la base de conocimiento.\n")
