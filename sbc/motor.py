@@ -1,23 +1,53 @@
 # sbc/motor.py
-# Descripción: Módulo 'motor' que proporciona utilidades para manejar una base
-#              de conocimiento representada como tripletas (sujeto, predicado, objeto).
-#              Contiene:
-#                - leer_base_conocimiento(ruta): generador que lee un archivo de
-#                  base de conocimiento y emite cada tripleta como una tupla.
-#                - consultar(base, sujeto, predicado, objeto): generador que
-#                  busca coincidencias en la base y devuelve diccionarios con
-#                  sustituciones para variables (nombres que empiezan por mayúscula).
-#              El formato esperado por línea es: palabras separadas por espacios;
-#              el predicado se toma como la palabra central de la línea.
+# =============================================================================
+# Módulo: motor
+#
+# Descripción:
+#   Este módulo proporciona utilidades para gestionar una base de conocimiento
+#   representada mediante tripletas (sujeto, predicado, objeto).
+#
+#   Incluye:
+#     - leer_base_conocimiento(ruta):
+#         Generador que lee un archivo de base de conocimiento y emite cada
+#         hecho o regla como instancia de Tripleta.
+#
+#     - consultar(base, sujeto, predicado, objeto):
+#         Generador que busca coincidencias en la base de conocimiento y devuelve
+#         objetos Sustitucion con las asignaciones de variables (términos cuyo
+#         nombre comienza con mayúscula).
+#
+#   Formato esperado de entrada:
+#     Cada línea debe contener palabras separadas por espacios.
+#     Las líneas pueden representar:
+#       • Hechos: una tripleta simple (sujeto, predicado, objeto).
+#       • Reglas: dos tripletas unidas mediante el operador "<-".
+#     Las líneas vacías o que comienzan con '#' se consideran comentarios y se
+#     ignoran durante el procesamiento.
+# =============================================================================
 
+import warnings
 from pathlib import Path
+from typing import Iterator, Iterable
 from sbc.clases import Tripleta, Sustitucion
-from pyparsing import Word, alphanums, Suppress, restOfLine, Combine, MatchFirst, Literal, Group, Optional
+from pyparsing import Word, alphanums, Suppress, restOfLine, Combine, Literal, Group, Optional
 
-def leer_base_conocimiento(ruta_archivo):
+def leer_base_conocimiento(ruta_archivo: str | Path) -> Iterator[Tripleta]:
     """
-    Generador que lee hechos y reglas de la base del conocimient.
-    Devuelve un diccionario de hechos y reglas como lista de tripletas.
+    Generador que lee una base de conocimiento desde un archivo de texto.
+
+    Cada línea puede representar:
+      - Un hecho: formado por tres palabras (sujeto, predicado, objeto).
+      - Una regla: formada por dos tripletas unidas mediante "<-".
+
+    Se admiten sujetos compuestos por dos palabras.
+
+    Ignora líneas vacías y comentarios (precedidos por '#').
+
+    Args:
+        ruta_archivo (str | Path): Ruta del archivo de base de conocimiento.
+
+    Yields:
+        Tripleta: Instancia que representa un hecho o parte de una regla.
     """
 
     # Definimos el formato esperado usando pyparsing
@@ -59,10 +89,15 @@ def leer_base_conocimiento(ruta_archivo):
                     hecho = resultado[0]
                     yield Tripleta(hecho['sujeto'], hecho['predicado'], hecho['objeto'])
             except Exception as e:
-                print(f"Error al parsear la línea: {linea}\n{e}")
+                warnings.warn(f"No se pudo analizar la línea: '{linea}'. Motivo: {e}", RuntimeWarning)
                 continue
 
-def consultar(base_conocimiento, sujeto, predicado, objeto):
+def consultar(
+        base_conocimiento: Iterable[Tripleta | tuple[str, str, str]],
+        sujeto: str,
+        predicado: str,
+        objeto: str
+) -> Iterator[Sustitucion]:
     """
     Generador que produce resultados de consulta.
     Devuelve instancias de Sustitucion con las sustituciones de variables.
