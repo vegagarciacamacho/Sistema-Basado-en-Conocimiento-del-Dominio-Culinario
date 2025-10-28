@@ -124,4 +124,32 @@ def consultar(
 
             yield sustitucion
 
+# Comando debug. Falta integrarlo en cli o no se donde para poder usarlo. Tampoco sé si hay que darle la bc por parámetro.
+def debug():
+    """Muestra toda la base de conocimiento cargada en memoria."""
+    if not base_conocimiento:
+        print("La base de conocimiento está vacía.")
+    else:
+        print("\nBase de conocimiento cargada en memoria:")
+        for tripleta in base_conocimiento:
+            print(tripleta)
 
+# Comando razona. Pseudocódigo, falta completarlo y aplicarlo.
+def razona():
+    # Obtener todas las reglas de la base de conocimiento
+    reglas = obtener_reglas_de_base_conocimiento()  # Devuelve las reglas como tripletas
+
+    # Para cada regla (cada regla tiene un antecedente y un consecuente)
+    for regla in reglas:
+        antecedente, consecuente = regla  # Descomponer la regla en antecedente y consecuente / parsear
+
+        # Verificar si el antecedente se cumple en la base de conocimiento
+        if consultar(antecedente):
+            # Si el antecedente se cumple, aplicar el consecuente
+
+            # Agregar el consecuente a la base de conocimiento
+            agregar_hecho_a_base_conocimiento(consecuente)  # Añadir el consecuente (nuevo hecho) a la base de conocimiento
+
+            print(f"Se aplicó la regla: {antecedente} -> {consecuente}")
+        else:
+            print(f"No se cumple el antecedente: {antecedente}")
