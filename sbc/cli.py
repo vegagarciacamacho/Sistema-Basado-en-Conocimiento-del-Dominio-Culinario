@@ -19,9 +19,11 @@ def cli():
 
     try:
         # Cargar base de conocimiento como lista de Tripleta
-        base_conocimiento = list(leer_base_conocimiento(archivo_base_conocimiento))
+        hechos, reglas = leer_base_conocimiento(archivo_base_conocimiento)
+        
         # Aplicar inferencia de reglas (deducir hechos)
-        hechos_deducidos = razonar_reglas(base_conocimiento)
+        hechos_deducidos = razonar_reglas(hechos, reglas)
+
         print("Base de conocimiento cargada correctamente.\n")
 
         # Bucle interactivo
@@ -31,8 +33,8 @@ def cli():
                 continue
 
             palabras = usuario.split()
-            if len(palabras) < 2:
-                print("Error: la consulta debe tener al menos 2 palabras.\n")
+            if len(palabras) < 3:
+                print("Error: la consulta debe tener al menos 3 palabras.\n")
                 continue
 
             # Si el usuario no pone objeto, asumimos una variable por defecto
@@ -50,7 +52,8 @@ def cli():
             )
 
             if tiene_variables:
-                resultados = list(consultar(base_conocimiento + list(hechos_deducidos), sujeto, predicado, objeto))
+                # Si hay variables, consultamos con los hechos originales + los hechos deducidos
+                resultados = list(consultar(hechos + hechos_deducidos, sujeto, predicado, objeto))
                 if resultados:
                     print("\nResultados encontrados:")
                     for r in resultados:
@@ -61,7 +64,7 @@ def cli():
                     print("No se encontraron coincidencias.\n")
             else:
                 # Consulta concreta: respuesta Sí / No
-                if Tripleta(sujeto, predicado, objeto) in base_conocimiento:
+                if Tripleta(sujeto, predicado, objeto) in hechos + hechos_deducidos:
                     print("Sí, está en la base de conocimiento.\n")
                 else:
                     print("No, no está en la base de conocimiento.\n")

@@ -67,6 +67,10 @@ def leer_base_conocimiento(ruta_archivo: str | Path) -> Iterator[Tripleta]:
     # Definimos el parser completo
     parser_linea = regla | tripleta
 
+    # Separar entre reglas y hechos
+    hechos = []
+    reglas = []
+
     with Path(ruta_archivo).open('r') as archivo:
         for linea in archivo:
             linea = linea.strip()
@@ -82,15 +86,18 @@ def leer_base_conocimiento(ruta_archivo: str | Path) -> Iterator[Tripleta]:
                     causa = resultado['causa'][0]
                     efecto = resultado['efecto'][0]
 
-                    yield Tripleta(causa['sujeto'], causa['predicado'], causa['objeto'])
-                    yield Tripleta(efecto['sujeto'], efecto['predicado'], efecto['objeto'])
+                    reglas.append((
+                        Tripleta(causa['sujeto'], causa['predicado'], causa['objeto']),
+                        Tripleta(efecto['sujeto'], efecto['predicado'], efecto['objeto'])
+                    ))
                 else:
                     # Es un hecho
                     hecho = resultado[0]
-                    yield Tripleta(hecho['sujeto'], hecho['predicado'], hecho['objeto'])
+                    hechos.append(Tripleta(hecho['sujeto'], hecho['predicado'], hecho['objeto']))
             except Exception as e:
                 warnings.warn(f"No se pudo analizar la línea: '{linea}'. Motivo: {e}", RuntimeWarning)
                 continue
+    return hechos, reglas
 
 def consultar(
         base_conocimiento: Iterable[Tripleta | tuple[str, str, str]],
@@ -124,24 +131,23 @@ def consultar(
 
             yield sustitucion
 
-def razonar_reglas(base_conocimiento: Iterable[Tripleta]) -> list[Tripleta]:
+def razonar_reglas(hechos: list[Tripleta], reglas: list[tuple[Tripleta, Tripleta]]) -> list[Tripleta]:
     """
-    Aplica las reglas sobre los hechos y devuelve los nuevos hechos deducidos.
+    Aplica las reglas sobre los hechos y devuelve los nuevos hechos deducidos sin modificar la base de conocimiento original.
     Repite hasta que no se infieran más hechos.
     """
-    hechos = [entrada for entrada in base_conocimiento if isinstance(entrada, Tripleta)]
-    reglas = [entrada for entrada in base_conocimiento if isinstance(entrada, tuple) and len(entrada) == 2]
+    hechos_deducidos = []
 
     nuevos = True
-    
     while nuevos:
         nuevos = False
-        for antecedente, consecuente in reglas:
-            # Si el antecedente está en los hechos y el consecuente no está en los nuevos 
-            if antecedente in hechos:
-                yield consecuente # Generamos el consecuente como un hecho nuevo
-                hechos.append(consecuente) # Añadimos el nuevo hecho a los hechos ya conocidos
-                nuevos = True # Indicamos que hay nuevo hecho que deducir
+        for consecuente, antecedente in reglas:
+            # Si el antecedente está en los hechos, deducimos el consecuente
+            if antecedente in hechos and consecuente not in hechos_deducidos:
+                hechos_deducidos.append(consecuente)  # Añadimos el consecuente a los hechos deducidos
+                nuevos = True  # Hay nuevos hechos que deducir
+    return hechos_deducidos
+
 
 # Comando debug. Falta integrarlo en cli o no se donde para poder usarlo. Tampoco sé si hay que darle la bc por parámetro.
 def debug():
