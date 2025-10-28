@@ -124,6 +124,25 @@ def consultar(
 
             yield sustitucion
 
+def razonar_reglas(base_conocimiento: Iterable[Tripleta]) -> list[Tripleta]:
+    """
+    Aplica las reglas sobre los hechos y devuelve los nuevos hechos deducidos.
+    Repite hasta que no se infieran más hechos.
+    """
+    hechos = [entrada for entrada in base_conocimiento if isinstance(entrada, Tripleta)]
+    reglas = [entrada for entrada in base_conocimiento if isinstance(entrada, tuple) and len(entrada) == 2]
+
+    nuevos = True
+    
+    while nuevos:
+        nuevos = False
+        for antecedente, consecuente in reglas:
+            # Si el antecedente está en los hechos y el consecuente no está en los nuevos 
+            if antecedente in hechos:
+                yield consecuente # Generamos el consecuente como un hecho nuevo
+                hechos.append(consecuente) # Añadimos el nuevo hecho a los hechos ya conocidos
+                nuevos = True # Indicamos que hay nuevo hecho que deducir
+
 # Comando debug. Falta integrarlo en cli o no se donde para poder usarlo. Tampoco sé si hay que darle la bc por parámetro.
 def debug():
     """Muestra toda la base de conocimiento cargada en memoria."""

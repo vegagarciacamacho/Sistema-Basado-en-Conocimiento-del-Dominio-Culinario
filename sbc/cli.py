@@ -9,7 +9,7 @@
 
 import click
 from pathlib import Path
-from sbc.motor import leer_base_conocimiento, consultar
+from sbc.motor import leer_base_conocimiento, consultar, razonar_reglas
 from sbc.clases import Tripleta
 
 @click.command()
@@ -20,6 +20,8 @@ def cli():
     try:
         # Cargar base de conocimiento como lista de Tripleta
         base_conocimiento = list(leer_base_conocimiento(archivo_base_conocimiento))
+        # Aplicar inferencia de reglas (deducir hechos)
+        hechos_deducidos = razonar_reglas(base_conocimiento)
         print("Base de conocimiento cargada correctamente.\n")
 
         # Bucle interactivo
@@ -48,7 +50,7 @@ def cli():
             )
 
             if tiene_variables:
-                resultados = list(consultar(base_conocimiento, sujeto, predicado, objeto))
+                resultados = list(consultar(base_conocimiento + list(hechos_deducidos), sujeto, predicado, objeto))
                 if resultados:
                     print("\nResultados encontrados:")
                     for r in resultados:
