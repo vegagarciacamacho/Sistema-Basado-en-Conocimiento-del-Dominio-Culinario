@@ -99,37 +99,28 @@ def leer_base_conocimiento(ruta_archivo: str | Path) -> Iterator[Tripleta]:
                 continue
     return hechos, reglas
 
-def consultar(
-        base_conocimiento: Iterable[Tripleta | tuple[str, str, str]],
-        sujeto: str,
-        predicado: str,
-        objeto: str
-) -> Iterator[Sustitucion]:
+def consultar(consulta : Tripleta, base_conocimiento : list[Tripleta, Tripleta]) -> Iterator[Sustitucion]:
     """
-    Generador que produce resultados de consulta.
-    Devuelve instancias de Sustitucion con las sustituciones de variables.
-    Acepta como base elementos Tripleta o tuplas/listas de 3 elementos.
+    Realiza una consulta sobre la base de conocimiento.
+    Devuelve una lista de Tripletas que coinciden con la consulta.
+    La consulta puede contener variables (identificadas con mayúscula).
     """
-    for entrada in base_conocimiento:
-        # soportar Tripleta y tuplas/listas
-        if isinstance(entrada, Tripleta):
-            s, p, o = entrada.sujeto, entrada.predicado, entrada.objeto
-        else:
-            s, p, o = entrada
-
-        if ((sujeto == s or sujeto[0].isupper()) and
-            (predicado == p or predicado[0].isupper()) and
-            (objeto == o or objeto[0].isupper())):
-
-            sustitucion = Sustitucion()
-            if sujeto[0].isupper():
-                sustitucion[sujeto] = s
-            if predicado[0].isupper():
-                sustitucion[predicado] = p
-            if objeto[0].isupper():
-                sustitucion[objeto] = o
-
-            yield sustitucion
+    for hecho, _ in base_conocimiento:
+        coincidencia = True
+        sustitucion = {}
+        
+        for attr in ['sujeto', 'predicado', 'objeto']:
+            valor_consulta = getattr(consulta, attr)
+            valor_hecho = getattr(hecho, attr)
+            
+            if valor_consulta[0].isupper():  # Es una variable
+                sustitucion[valor_consulta] = valor_hecho
+            elif valor_consulta != valor_hecho:
+                coincidencia = False
+                break
+        
+        if coincidencia:
+            yield Sustitucion(sustitucion)
 
 def razonar_reglas(hechos: list[Tripleta], reglas: list[tuple[Tripleta, Tripleta]]) -> list[Tripleta]:
     """
