@@ -31,7 +31,7 @@ from typing import Iterator, Iterable
 from sbc.clases import Tripleta, Sustitucion
 from pyparsing import Word, alphanums, Suppress, restOfLine, Combine, Literal, Group, Optional
 
-def leer_base_conocimiento(ruta_archivo: str | Path) -> Iterator[Tripleta]:
+def cargar(ruta_archivo: str | Path) -> Iterator[Tripleta]:
     """
     Generador que lee una base de conocimiento desde un archivo de texto.
 
@@ -141,7 +141,37 @@ def añadir(entrada : str , base_conocimiento : list[Tripleta, Tripleta]):
     except ValueError:
         print("Error: El hecho debe estar en el formato 'sujeto predicado objeto'.")
 
-def razonar_reglas(hechos: list[Tripleta], reglas: list[tuple[Tripleta, Tripleta]]) -> list[Tripleta]:
+def revocar(entrada: str, base_conocimiento: list[Tripleta]) -> bool:
+    """
+    Revoca (elimina) un hecho de la base de conocimiento.
+    Args:
+        entrada: texto en formato "no sujeto predicado objeto."
+        base_conocimiento: lista de tripletas donde buscar y eliminar
+    Returns:
+        bool: True si se encontró y eliminó, False si no existía
+    """
+    # Limpiar entrada (quitar "no" inicial y punto final)
+    hecho = entrada.strip()[3:-1].strip()
+    
+    try:
+        # Dividir en sujeto predicado objeto
+        palabras = hecho.split()
+        if len(palabras) != 3:
+            return False
+            
+        tripleta = Tripleta(palabras[0], palabras[1], palabras[2])
+        
+        # Buscar y eliminar si existe
+        if tripleta in base_conocimiento:
+            base_conocimiento.remove(tripleta)
+            return True
+            
+        return False
+        
+    except ValueError:
+        return False
+
+def descubrir(hechos: list[Tripleta], reglas: list[tuple[Tripleta, Tripleta]]) -> list[Tripleta]:
     """
     Aplica las reglas sobre los hechos y devuelve los nuevos hechos deducidos sin modificar la base de conocimiento original.
     Repite hasta que no se infieran más hechos.
@@ -169,13 +199,48 @@ def debug():
         for tripleta in base_conocimiento:
             print(tripleta)
 
-# Comando razona. Pseudocódigo, falta completarlo y aplicarlo.
-def razona():
-    # Paso 1: Obtener todos los hechos y reglas de la base de conocimiento
-    hechos, reglas = leer_base_conocimiento(Path(__file__).parent.parent / 'kb' / 'bc.txt')  # Leer base de conocimiento
+def consultar(entrada: str, base_conocimiento: list[Tripleta], hechos_deducidos: list[Tripleta]) -> None:
+    """
+    Procesa una consulta y muestra los resultados.
+    Args:
+        entrada: texto en formato "sujeto predicado objeto?"
+        base_conocimiento: lista de hechos base
+        hechos_deducidos: lista de hechos deducidos
+    """
+    # Quitar el ? final y dividir en palabras
+    consulta_text = entrada[:-1].strip()
+    palabras = consulta_text.split()
+    
+    if len(palabras) < 3:
+        print("Error: la consulta debe tener al menos 3 palabras.\n")
+        return
+        
+    if len(palabras) == 2:
+        palabras.append("X")
+        
+    mitad = len(palabras) // 2
+    predicado = palabras[mitad]
+    sujeto = " ".join(palabras[:mitad])
+    objeto = " ".join(palabras[mitad + 1:])
 
-    # Paso 2: Aplicar razonamiento sobre las reglas
-    hechos_deducidos = razonar_reglas(hechos, reglas)  # Deduce nuevos hechos
+    consulta_tripleta = Tripleta(sujeto, predicado, objeto)
+    base_total_hechos = base_conocimiento + hechos_deducidos
 
-    # Paso 3: Agregar los hechos deducidos a la base de conocimiento
-    hechos.extend(hechos_deducidos)
+    # Detectar si hay variables
+    tiene_variables = any(t[0].isupper() for t in (sujeto, predicado, objeto) if t)
+
+    if tiene_variables:
+        resultados = list(unificar(consulta_tripleta, base_total_hechos))
+        if resultados:
+            print("\nResultados encontrados:")
+            for r in resultados:
+                for var, valor in r.items():
+                    print(f"{var} = {valor}")
+            print()
+        else:
+            print("No se encontraron coincidencias.\n")
+    else:
+        if consulta_tripleta in base_total_hechos:
+            print("Sí, está en la base de conocimiento.\n")
+        else:
+            print("No, no está en la base de conocimiento.\n")

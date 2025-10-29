@@ -9,7 +9,7 @@
 
 import click
 from pathlib import Path
-from sbc.motor import leer_base_conocimiento, consultar, razonar_reglas
+from sbc.motor import cargar, consultar, descubrir, añadir, revocar
 from sbc.clases import Tripleta
 
 @click.command()
@@ -18,62 +18,54 @@ def cli():
     archivo_base_conocimiento = Path(__file__).parent.parent / 'kb' / 'bc.txt'
 
     try:
-        # Cargar base de conocimiento como lista de Tripleta
-        hechos, reglas = leer_base_conocimiento(archivo_base_conocimiento)
-        
-        # Aplicar inferencia de reglas (deducir hechos)
-        hechos_deducidos = razonar_reglas(hechos, reglas)
+        # Cargar base de conocimiento como listas
+        hechos, reglas = cargar(archivo_base_conocimiento)
+        hechos_deducidos = []  # se calcularán cuando el usuario pida 'descubrir!'
 
         print("Base de conocimiento cargada correctamente.\n")
+        print("Comandos: terminar con ?: consulta, . : añadir/quit. Ej: 'tomate color rojo.' 'no tomate color rojo.'")
+        print("Comandos especiales: 'cargar!' (recargar kb), 'descubrir!' (encadenamiento hacia delante)\n")
 
         # Bucle interactivo
         while True:
-            usuario = input("Consulta (sujeto predicado objeto): ").strip()
+            usuario = input("Entrada: ").strip()
             if not usuario:
                 continue
 
-            palabras = usuario.split()
-            if len(palabras) < 3:
-                print("Error: la consulta debe tener al menos 3 palabras.\n")
-                continue
+            match usuario:
+                
+                # Cargar
+                case "cargar!":
+                    hechos, reglas = cargar(archivo_base_conocimiento)
+                    hechos_deducidos = []
+                    print("Base de conocimiento recargada.\n")
 
-            # Si el usuario no pone objeto, asumimos una variable por defecto
-            if len(palabras) == 2:
-                palabras.append("X")
+                # Descubrir
+                case "descubrir!":
+                    hechos_deducidos = descubrir(hechos, reglas)
+                    print(f"Descubrimiento completado. {len(hechos_deducidos)} hechos deducidos.\n")
 
-            mitad = len(palabras) // 2
-            predicado = palabras[mitad]
-            sujeto = " ".join(palabras[:mitad])
-            objeto = " ".join(palabras[mitad + 1:])
+                # Añadir o eliminar hecho
+                case _ if usuario.endswith('.'):
 
-            # Verificamos si hay variables
-            tiene_variables = (
-                sujeto[0].isupper() or predicado[0].isupper() or objeto[0].isupper()
-            )
+                    # Revocar hecho
+                    if usuario.lower().startswith("no "):
 
-            if tiene_variables:
-                # Si hay variables, consultamos con los hechos originales + los hechos deducidos
-                resultados = list(consultar(hechos + hechos_deducidos, sujeto, predicado, objeto))
-                if resultados:
-                    print("\nResultados encontrados:")
-                    for r in resultados:
-                        for var, valor in r.items():
-                            print(f"{var} = {valor}")
-                    print()
-                else:
-                    print("No se encontraron coincidencias.\n")
-            else:
-                # Consulta concreta: respuesta Sí / No
-                if Tripleta(sujeto, predicado, objeto) in hechos + hechos_deducidos:
-                    print("Sí, está en la base de conocimiento.\n")
-                else:
-                    print("No, no está en la base de conocimiento.\n")
+                        if revocar(usuario, hechos):
+                            print("Hecho revocado de la memoria de trabajo.\n")
+                        else:
+                            print("Hecho no encontrado en la memoria de trabajo.\n")
 
-            # Preguntar si desea continuar
-            respuesta = input("¿Deseas terminar la sesión? (s/n): ").strip().lower()
-            if respuesta in ("s", "si", "sí"):
-                print("\nSesión finalizada.")
-                break
+                    # Añadir hecho
+                    else:
+                        añadir(usuario, hechos)
+
+                # Consultar
+                case _ if usuario.endswith('?'):
+                    consultar(usuario, hechos, hechos_deducidos)
+
+                case _:
+                    print("Entrada no reconocida. Use '?' para consultas, '.' para hechos, 'cargar!' o 'descubrir!'.\n")
 
     except FileNotFoundError:
         print(f"Error: El archivo {archivo_base_conocimiento} no se encuentra.")
