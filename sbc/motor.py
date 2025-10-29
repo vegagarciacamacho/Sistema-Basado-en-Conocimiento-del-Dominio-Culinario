@@ -161,20 +161,11 @@ def debug():
 
 # Comando razona. Pseudocódigo, falta completarlo y aplicarlo.
 def razona():
-    # Obtener todas las reglas de la base de conocimiento
-    reglas = obtener_reglas_de_base_conocimiento()  # Devuelve las reglas como tripletas
+    # Paso 1: Obtener todos los hechos y reglas de la base de conocimiento
+    hechos, reglas = leer_base_conocimiento(Path(__file__).parent.parent / 'kb' / 'bc.txt')  # Leer base de conocimiento
 
-    # Para cada regla (cada regla tiene un antecedente y un consecuente)
-    for regla in reglas:
-        antecedente, consecuente = regla  # Descomponer la regla en antecedente y consecuente / parsear
+    # Paso 2: Aplicar razonamiento sobre las reglas
+    hechos_deducidos = razonar_reglas(hechos, reglas)  # Deduce nuevos hechos
 
-        # Verificar si el antecedente se cumple en la base de conocimiento
-        if consultar(antecedente):
-            # Si el antecedente se cumple, aplicar el consecuente
-
-            # Agregar el consecuente a la base de conocimiento
-            agregar_hecho_a_base_conocimiento(consecuente)  # Añadir el consecuente (nuevo hecho) a la base de conocimiento
-
-            print(f"Se aplicó la regla: {antecedente} -> {consecuente}")
-        else:
-            print(f"No se cumple el antecedente: {antecedente}")
+    # Paso 3: Agregar los hechos deducidos a la base de conocimiento
+    hechos.extend(hechos_deducidos)
