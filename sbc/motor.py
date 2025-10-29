@@ -122,6 +122,25 @@ def consultar(consulta : Tripleta, base_conocimiento : list[Tripleta, Tripleta])
         if coincidencia:
             yield Sustitucion(sustitucion)
 
+def añadir(entrada : str , base_conocimiento : list[Tripleta, Tripleta]):
+    """Añade un hecho a la base de conocimiento."""
+    # Limpiar la entrada (eliminar el punto al final)
+    hecho = entrada.strip().rstrip('.')
+    
+    # Dividir la entrada en sujeto, predicado y objeto
+    try:
+        sujeto, predicado, objeto = hecho.split()
+        
+        # Crear una nueva tripleta
+        nuevo_hecho = Tripleta(sujeto, predicado, objeto)
+        
+        # Añadir el nuevo hecho a la base de conocimiento
+        base_conocimiento.append(nuevo_hecho)
+        
+        print(f"Hecho añadido: {nuevo_hecho}")
+    except ValueError:
+        print("Error: El hecho debe estar en el formato 'sujeto predicado objeto'.")
+
 def razonar_reglas(hechos: list[Tripleta], reglas: list[tuple[Tripleta, Tripleta]]) -> list[Tripleta]:
     """
     Aplica las reglas sobre los hechos y devuelve los nuevos hechos deducidos sin modificar la base de conocimiento original.
