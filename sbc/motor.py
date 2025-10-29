@@ -27,9 +27,9 @@
 
 import warnings
 from pathlib import Path
-from typing import Iterator, Iterable
+from typing import Iterator
 from sbc.clases import Tripleta, Sustitucion
-from pyparsing import Word, alphanums, Suppress, restOfLine, Combine, Literal, Group, Optional
+from pyparsing import Word, alphanums, Suppress, restOfLine, Combine, Literal, Group, Optional, ZeroOrMore
 
 def cargar(ruta_archivo: str | Path) -> Iterator[Tripleta]:
     """
@@ -62,7 +62,10 @@ def cargar(ruta_archivo: str | Path) -> Iterator[Tripleta]:
 
     # Definimos regla
     flecha = Suppress(Optional(" ") + Literal("<-") + Optional(" "))
-    regla = Group(tripleta)("causa") + flecha + Group(tripleta)("efecto")
+    coma = Suppress(Optional(" ") + Literal(",") + Optional(" "))
+    lista_efectos = Group(tripleta) + ZeroOrMore(coma + Group(tripleta))
+
+    regla = Group(tripleta)("causa") + flecha + lista_efectos("efectos")
 
     # Definimos el parser completo
     parser_linea = regla | tripleta
@@ -81,14 +84,20 @@ def cargar(ruta_archivo: str | Path) -> Iterator[Tripleta]:
             try:
                 resultado = parser_linea.parseString(linea)
 
-                if 'causa' in resultado and 'efecto' in resultado:
+                if 'causa' in resultado and 'efectos' in resultado:
                     # Es una regla
                     causa = resultado['causa'][0]
-                    efecto = resultado['efecto'][0]
+                    causa_tripleta = Tripleta(causa['sujeto'], causa['predicado'], causa['objeto'])
+
+                    efectos_tripletas = []
+                    for efecto in resultado['efectos']:
+                        efecto = efecto[0]
+                        efecto_tripleta = Tripleta(efecto['sujeto'], efecto['predicado'], efecto['objeto'])
+                        efectos_tripletas.append(efecto_tripleta)
 
                     reglas.append((
-                        Tripleta(causa['sujeto'], causa['predicado'], causa['objeto']),
-                        Tripleta(efecto['sujeto'], efecto['predicado'], efecto['objeto'])
+                        causa_tripleta,
+                        efectos_tripletas
                     ))
                 else:
                     # Es un hecho
