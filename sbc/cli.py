@@ -9,7 +9,7 @@
 
 import click
 from pathlib import Path
-from sbc.motor import cargar, consultar, descubrir, añadir, revocar
+from sbc.motor import cargar, consultar, descubrir, añadir, revocar, debug
 from sbc.clases import Tripleta
 
 @click.command()
@@ -44,6 +44,10 @@ def cli():
                 case "descubrir!":
                     hechos_deducidos = descubrir(hechos, reglas)
                     print(f"Descubrimiento completado. {len(hechos_deducidos)} hechos deducidos.\n")
+                
+                # Mostrar toda la base de conocimiento
+                case "debug!":
+                    debug(hechos, hechos_deducidos, reglas)
 
                 # Añadir o eliminar hecho
                 case _ if usuario.endswith('.'):
@@ -63,6 +67,11 @@ def cli():
                 # Consultar
                 case _ if usuario.endswith('?'):
                     consultar(usuario, hechos, hechos_deducidos)
+
+                # Comando para salir
+                case "salir" | "exit" | "s":
+                    print("Sesión finalizada.")
+                    break  # Salir del bucle
 
                 case _:
                     print("Entrada no reconocida. Use '?' para consultas, '.' para hechos, 'cargar!' o 'descubrir!'.\n")

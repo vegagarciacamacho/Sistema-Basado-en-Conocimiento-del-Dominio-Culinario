@@ -198,15 +198,42 @@ def descubrir(hechos: list[Tripleta], reglas: list[tuple[Tripleta, Tripleta]]) -
     return hechos_deducidos
 
 
-# Comando debug. Falta integrarlo en cli o no se donde para poder usarlo. Tampoco sé si hay que darle la bc por parámetro.
-def debug():
-    """Muestra toda la base de conocimiento cargada en memoria."""
-    if not base_conocimiento:
-        print("La base de conocimiento está vacía.")
+# Comando debug.
+def debug(hechos: list[Tripleta], hechos_deducidos: list[Tripleta] = None, reglas: list[tuple[Tripleta, Tripleta]] = None):
+    """
+    Muestra todos los hechos y reglas cargados en memoria (base + deducidos).
+    """
+    if not hechos and not hechos_deducidos and not reglas:
+        print("La base de conocimiento está vacía.\n")
+        return
+
+    print("\n=== BASE DE CONOCIMIENTO ===")
+
+    if hechos:
+        print("\nHechos cargados:")
+        for tripleta in hechos:
+            print("  -", tripleta)
     else:
-        print("\nBase de conocimiento cargada en memoria:")
-        for tripleta in base_conocimiento:
-            print(tripleta)
+        print("\n(No hay hechos cargados)")
+
+    if hechos_deducidos:
+        print("\nHechos deducidos:")
+        for tripleta in hechos_deducidos:
+            print("  -", tripleta)
+    else:
+        print("\n(No hay hechos deducidos)")
+
+    if reglas:
+        print("\nReglas cargadas:")
+        for antecedente, consecuentes in reglas:
+            # Imprimir antecedente y consecuente
+            print(f"  -", antecedente," <-")
+            for consecuente in consecuentes:
+                print(f"    -", consecuente)
+
+    print("============================\n")
+
+
 
 def consultar(entrada: str, base_conocimiento: list[Tripleta], hechos_deducidos: list[Tripleta]) -> None:
     """

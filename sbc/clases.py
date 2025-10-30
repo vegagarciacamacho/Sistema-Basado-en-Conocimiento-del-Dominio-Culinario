@@ -27,7 +27,7 @@ class Tripleta:
         yield self.objeto
 
     def __repr__(self) -> str:
-        return f"Tripleta({self.sujeto!r}, {self.predicado!r}, {self.objeto!r})"
+        return f"{self.sujeto} {self.predicado} {self.objeto}"
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Tripleta):
