@@ -180,7 +180,7 @@ def revocar(entrada: str, base_conocimiento: list[Tripleta]) -> bool:
     except ValueError:
         return False
 
-def descubrir(hechos: list[Tripleta], reglas: list[tuple[Tripleta, Tripleta]]) -> list[Tripleta]:
+def descubrir(hechos: list[Tripleta], reglas: list[tuple[Tripleta, list[Tripleta]]]) -> list[Tripleta]:
     """
     Aplica las reglas sobre los hechos y devuelve los nuevos hechos deducidos sin modificar la base de conocimiento original.
     Repite hasta que no se infieran más hechos.
@@ -190,11 +190,14 @@ def descubrir(hechos: list[Tripleta], reglas: list[tuple[Tripleta, Tripleta]]) -
     nuevos = True
     while nuevos:
         nuevos = False
-        for consecuente, antecedente in reglas:
-            # Si el antecedente está en los hechos, deducimos el consecuente
-            if antecedente in hechos and consecuente not in hechos_deducidos:
-                hechos_deducidos.append(consecuente)  # Añadimos el consecuente a los hechos deducidos
-                nuevos = True  # Hay nuevos hechos que deducir
+        for consecuente, antecedentes in reglas:
+            # Comprobamos si todos los antecedentes están en los hechos
+            if all(antecedente in hechos for antecedente in antecedentes):
+                # Si todos los antecedentes se cumplen, deducimos el consecuente
+                if consecuente not in hechos_deducidos:
+                    hechos_deducidos.append(consecuente)  # Añadimos el consecuente a los hechos deducidos
+                    nuevos = True  # Hay nuevos hechos que deducir
+
     return hechos_deducidos
 
 
@@ -225,11 +228,11 @@ def debug(hechos: list[Tripleta], hechos_deducidos: list[Tripleta] = None, regla
 
     if reglas:
         print("\nReglas cargadas:")
-        for antecedente, consecuentes in reglas:
+        for consecuente, antecedentes in reglas:
             # Imprimir antecedente y consecuente
-            print(f"  -", antecedente," <-")
-            for consecuente in consecuentes:
-                print(f"    -", consecuente)
+            print(f"  -", consecuente," <-")
+            for antecedente in antecedentes:
+                print(f"    -", antecedente)
 
     print("============================\n")
 
