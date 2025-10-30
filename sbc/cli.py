@@ -22,9 +22,18 @@ def cli():
         hechos, reglas = cargar(archivo_base_conocimiento)
         hechos_deducidos = []  # se calcularán cuando el usuario pida 'descubrir!'
 
-        print("Base de conocimiento cargada correctamente.\n")
-        print("Comandos: terminar con ?: consulta, . : añadir/quit. Ej: 'tomate color rojo.' 'no tomate color rojo.'")
-        print("Comandos especiales: 'cargar!' (recargar kb), 'descubrir!' (encadenamiento hacia delante)\n")
+        print("\nBase de conocimiento cargada correctamente.\n")
+    
+        # Comandos
+        print("Comandos disponibles:")
+        print("  ? Consulta un hecho. Ejemplo: 'tomate color rojo?'")
+        print("  . Añadir o eliminar hechos. Ejemplo: 'tomate color rojo.' o 'no tomate color rojo.'\n")
+        
+        # Comandos especiales
+        print("Comandos especiales:")
+        print("  cargar! - Recargar la base de conocimiento.")
+        print("  descubrir! - Aplicar encadenamiento hacia adelante para deducir nuevos hechos.\n")
+        print("-" * 50)
 
         # Bucle interactivo
         while True:
