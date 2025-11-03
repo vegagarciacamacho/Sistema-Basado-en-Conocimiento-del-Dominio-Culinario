@@ -26,6 +26,7 @@ def cli():
     
         # Comandos
         print("Comandos disponibles:")
+        print('  salir | exit | s - Salir de la sesión interactiva.')
         print("  ? Consulta un hecho. Ejemplo: 'tomate color rojo?'")
         print("  . Añadir o eliminar hechos. Ejemplo: 'tomate color rojo.' o 'no tomate color rojo.'\n")
         

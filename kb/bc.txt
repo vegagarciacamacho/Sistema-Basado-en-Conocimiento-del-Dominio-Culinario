@@ -7,29 +7,29 @@
 # Para organizar mejor la base la hemos dividido en dos grupos: Hechos y Reglas.
 
 # Hechos:
-tomate cantidad muchos
+tomate cantidad mucho
 tomate sabor rico
-cebolla cantidad muchos
+cebolla cantidad mucho
 cebolla color morado
-pera cantidad pocas
+pera cantidad poco
 pera sabor dulce
-lechuga cantidad pocas
+lechuga cantidad poco
 lechuga tipo iceberg
 vino tinto marida carne
 vino tinto color rojo
-manzana color roja
+manzana color rojo
 manzana sabor acido
 manzana temporada otoño
 manzana origen espana
-manzana cantidad muchas
+manzana cantidad mucho
 manzana tipo fuji
 manzana calorias 52
 platano color amarillo
 platano sabor dulce
-platano cantidad muchas
+platano cantidad mucho
 platano origen ecuador
-platano maduro textura blanda
-banana cantidad pocas
+platano maduro textura blando
+banana cantidad poco
 zanahoria color naranja
 zanahoria sabor dulce
 zanahoria contiene betacaroteno
@@ -70,8 +70,8 @@ aceituna color verde
 aceituna sabor salado
 miel origen abejas
 miel sabor dulce
-azucar tipo blanca
-azucar cantidad mucha
+azucar tipo blanco
+azucar cantidad mucho
 sal tipo marina
 sal uso cocina
 limon sabor acido
