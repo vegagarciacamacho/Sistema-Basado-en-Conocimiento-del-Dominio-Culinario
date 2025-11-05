@@ -9,7 +9,7 @@
 
 import click
 from pathlib import Path
-from sbc.motor import cargar, consultar, descubrir, añadir, revocar, debug
+from sbc.motor import cargar, consultar, descubrir, añadir, revocar, debug, razona
 from sbc.clases import Tripleta
 
 @click.command()
@@ -73,6 +73,20 @@ def cli():
                     # Añadir hecho
                     else:
                         añadir(usuario, hechos)
+
+                                # Razonar si
+                case _ if usuario.startswith("razona si"):
+                    # Eliminar "razona si" y el "?" de la consulta
+                    consulta = usuario[len("razona si "):-1].strip()
+                    # Crear la tripleta a partir de la consulta
+                    sujeto, predicado, objeto = consulta.split()
+                    consulta_tripleta = Tripleta(sujeto, predicado, objeto)
+                    
+                    # Llamar a la función de razonamiento
+                    if razona(consulta_tripleta, hechos, reglas):
+                        print(f"Sí, se puede deducir: {consulta_tripleta}")
+                    else:
+                        print(f"No se puede deducir: {consulta_tripleta}")
 
                 # Consultar
                 case _ if usuario.endswith('?'):
