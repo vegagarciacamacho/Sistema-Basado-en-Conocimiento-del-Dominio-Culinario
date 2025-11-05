@@ -34,6 +34,7 @@ def cli():
         print("Comandos especiales:")
         print("  cargar! - Recargar la base de conocimiento.")
         print("  descubrir! - Aplicar encadenamiento hacia adelante para deducir nuevos hechos.\n")
+        print("  razona si - Verificar si una consulta puede ser deducida.")
         print("-" * 50)
 
         # Bucle interactivo
