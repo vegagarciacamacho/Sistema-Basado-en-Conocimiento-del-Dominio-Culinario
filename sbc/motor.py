@@ -29,7 +29,7 @@ import warnings
 from pathlib import Path
 from typing import Iterator, Iterable
 from sbc.clases import Tripleta, Sustitucion
-from pyparsing import Word, alphanums, Suppress, restOfLine, Combine, Literal, Group, Optional
+from pyparsing import Word, alphanums, Suppress, restOfLine, Combine, Literal, Group, Optional, ZeroOrMore
 
 def cargar(ruta_archivo: str | Path) -> Iterator[Tripleta]:
     """
@@ -62,7 +62,10 @@ def cargar(ruta_archivo: str | Path) -> Iterator[Tripleta]:
 
     # Definimos regla
     flecha = Suppress(Optional(" ") + Literal("<-") + Optional(" "))
-    regla = Group(tripleta)("causa") + flecha + Group(tripleta)("efecto")
+    coma = Suppress(Optional(" ") + Literal(",") + Optional(" "))
+    lista_efectos = Group(tripleta) + ZeroOrMore(coma + Group(tripleta))
+
+    regla = Group(tripleta)("causa") + flecha + lista_efectos("efectos")
 
     # Definimos el parser completo
     parser_linea = regla | tripleta
@@ -81,14 +84,20 @@ def cargar(ruta_archivo: str | Path) -> Iterator[Tripleta]:
             try:
                 resultado = parser_linea.parseString(linea)
 
-                if 'causa' in resultado and 'efecto' in resultado:
+                if 'causa' in resultado and 'efectos' in resultado:
                     # Es una regla
                     causa = resultado['causa'][0]
-                    efecto = resultado['efecto'][0]
+                    causa_tripleta = Tripleta(causa['sujeto'], causa['predicado'], causa['objeto'])
+
+                    efectos_tripletas = []
+                    for efecto in resultado['efectos']:
+                        efecto = efecto[0]
+                        efecto_tripleta = Tripleta(efecto['sujeto'], efecto['predicado'], efecto['objeto'])
+                        efectos_tripletas.append(efecto_tripleta)
 
                     reglas.append((
-                        Tripleta(causa['sujeto'], causa['predicado'], causa['objeto']),
-                        Tripleta(efecto['sujeto'], efecto['predicado'], efecto['objeto'])
+                        causa_tripleta,
+                        efectos_tripletas
                     ))
                 else:
                     # Es un hecho
@@ -258,3 +267,48 @@ def debug():
         for tripleta in base_conocimiento:
             print(tripleta)
 
+# Razonamiento hacia atrás
+def razona(consulta: Tripleta, hechos: list[Tripleta], reglas: list[tuple[Tripleta, list[Tripleta]]]) -> bool:
+    """
+    Aplica encadenamiento hacia atrás para deducir si la consulta puede ser derivada
+    a partir de la base de conocimiento.
+    
+    Args:
+        consulta (Tripleta): La consulta que el usuario hace, que debe ser derivada.
+        hechos (list[Tripleta]): Lista de hechos conocidos en la base de conocimiento.
+        reglas (list[tuple[Tripleta, list[Tripleta]]]): Lista de reglas con su antecedente (list de tripletas) y consecuente (una tripleta).
+    
+    Returns:
+        bool: Si la consulta es deducible a partir de los hechos y reglas.
+    """
+    print(f"Procesando consulta: {consulta}")  # Depuración
+
+    # 1. Verificar si la consulta ya está en los hechos
+    if consulta in hechos:
+        print(f"Consulta {consulta} encontrada directamente en los hechos.")  # Depuración
+        return True  # Si ya está en los hechos, la respuesta es sí
+
+    # 2. Iterar sobre las reglas para ver si el consecuente coincide con la consulta
+    for consecuente, antecedentes in reglas:
+        print(f"Regla: {consecuente} <- {antecedentes}")  # Depuración
+
+        # Si el consecuente coincide con la consulta, intentamos verificar los antecedentes
+        if consecuente == consulta:
+            print(f"Consiguió encontrar un consecuente coincidente: {consecuente}")  # Depuración
+
+            # 3. Verificar si todos los antecedentes están en los hechos
+            if all(antecedente in hechos for antecedente in antecedentes):
+                print(f"Todos los antecedentes se cumplen para: {consulta}")  # Depuración
+                return True  # Si todos los antecedentes se cumplen, deducimos la consulta
+
+            # 4. Si los antecedentes no están en los hechos, intentar razonar hacia atrás
+            for antecedente in antecedentes:
+                print(f"Intentando razonar el antecedente: {antecedente}")  # Depuración
+                if razona(antecedente, hechos, reglas):
+                    # Si un antecedente puede ser deducido, lo añadimos a los hechos
+                    print(f"Se ha deducido el antecedente: {antecedente}, añadiéndolo a los hechos.")  # Depuración
+                    hechos.append(antecedente)  # Añadimos el antecedente a los hechos
+                    return True  # Si hemos deducido el antecedente, podemos deducir el consecuente
+
+    print(f"No se puede deducir la consulta {consulta}.")  # Depuración
+    return False  # Si no se puede deducir la consulta, retornamos False
