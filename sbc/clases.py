@@ -11,7 +11,6 @@
 from dataclasses import dataclass
 from typing import Iterator, Any
 
-
 @dataclass
 class Tripleta:
     """
@@ -47,3 +46,21 @@ class Sustitucion(dict):
     def __repr__(self) -> str:
         return f"Sustitucion({dict(self)!r})"
 
+@dataclass
+class Extension:
+    """Representa las extensiones opcionales de una regla o afirmación."""
+    difusa: float | None = None
+    precedencia: int | None = None
+    restricciones: list[tuple[str, str, int]] = None
+    
+    def __post_init__(self):
+        if self.restricciones is None:
+            self.restricciones = []
+
+
+@dataclass
+class Regla:
+    """Representa una regla de producción con sus extensiones."""
+    consecuente: Tripleta
+    antecedentes: list[Tripleta]
+    extension: Extension | None = None

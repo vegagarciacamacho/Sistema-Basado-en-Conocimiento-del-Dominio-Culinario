@@ -2,10 +2,6 @@
 # Descripción: Interfaz de línea de comandos (CLI) basada en click que carga una
 #              base de conocimiento desde el archivo kb/bc.txt y permite realizar
 #              consultas interactivas en forma de tripletas (sujeto predicado objeto).
-#              Soporta consultas con variables (nombres que empiezan por mayúscula)
-#              para obtener sustituciones y consultas concretas que responden Sí/No.
-#              Utiliza las funciones leer_base_conocimiento y consultar del módulo sbc.motor.
-
 
 import click
 from pathlib import Path
@@ -39,7 +35,12 @@ def cli():
 
         # Bucle interactivo
         while True:
-            usuario = input("Entrada: ").strip()
+            try:
+                usuario = input("Entrada: ").strip()
+            except (KeyboardInterrupt, EOFError):
+                print("\n\nSesión finalizada.")
+                break
+
             if not usuario:
                 continue
 
@@ -65,7 +66,6 @@ def cli():
 
                     # Revocar hecho
                     if usuario.lower().startswith("no "):
-
                         if revocar(usuario, hechos):
                             print("Hecho revocado de la memoria de trabajo.\n")
                         else:
@@ -75,19 +75,24 @@ def cli():
                     else:
                         añadir(usuario, hechos)
 
-                                # Razonar si
+                # Razonar hacia atrás
                 case _ if usuario.startswith("razona si"):
-                    # Eliminar "razona si" y el "?" de la consulta
-                    consulta = usuario[len("razona si "):-1].strip()
-                    # Crear la tripleta a partir de la consulta
-                    sujeto, predicado, objeto = consulta.split()
-                    consulta_tripleta = Tripleta(sujeto, predicado, objeto)
+                    from sbc.parserSBC import _parser
+                    from pyparsing import ParseException
                     
-                    # Llamar a la función de razonamiento
-                    if razona(consulta_tripleta, hechos, reglas):
-                        print(f"Sí, se puede deducir: {consulta_tripleta}")
-                    else:
-                        print(f"No se puede deducir: {consulta_tripleta}")
+                    try:
+                        # Usar el parser para extraer la consulta
+                        consulta_tripleta, _ = _parser.parsear_consulta(usuario)
+                        
+                        # Llamar a la función de razonamiento
+                        if razona(consulta_tripleta, hechos, reglas):
+                            print(f"Sí, se puede deducir: {consulta_tripleta}\n")
+                        else:
+                            print(f"No se puede deducir: {consulta_tripleta}\n")
+                    except ParseException as e:
+                        print(f"Error de sintaxis: {e.msg}\n")
+                    except Exception as e:
+                        print(f"Error al procesar razonamiento: {e}\n")
 
                 # Consultar
                 case _ if usuario.endswith('?'):

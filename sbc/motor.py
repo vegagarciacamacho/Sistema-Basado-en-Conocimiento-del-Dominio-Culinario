@@ -28,287 +28,258 @@
 import warnings
 from pathlib import Path
 from typing import Iterator, Iterable
-from sbc.clases import Tripleta, Sustitucion
-from pyparsing import Word, alphanums, Suppress, restOfLine, Combine, Literal, Group, Optional, ZeroOrMore
+from sbc.clases import Tripleta, Sustitucion, Regla, Extension
+from pyparsing import ParseException
 
-def cargar(ruta_archivo: str | Path) -> Iterator[Tripleta]:
+from sbc.parserSBC import _parser
+
+def cargar(ruta_archivo: str | Path) -> tuple[list[Tripleta], list[Regla]]:
     """
-    Generador que lee una base de conocimiento desde un archivo de texto.
-
-    Cada línea puede representar:
-      - Un hecho: formado por tres palabras (sujeto, predicado, objeto).
-      - Una regla: formada por dos tripletas unidas mediante "<-".
-
-    Se admiten sujetos compuestos por dos palabras.
-
-    Ignora líneas vacías y comentarios (precedidos por '#').
+    Carga una base de conocimiento desde un archivo de texto.
 
     Args:
         ruta_archivo (str | Path): Ruta del archivo de base de conocimiento.
 
-    Yields:
-        Tripleta: Instancia que representa un hecho o parte de una regla.
+    Returns:
+        tuple[list[Tripleta], list[Regla]]: Tupla con listas de hechos y reglas.
     """
-
-    # Definimos el formato esperado usando pyparsing
-    palabra = Word(alphanums + "áéíóúñüÁÉÍÓÚÑÜ_-")
-    comentario = Suppress("#" + restOfLine)
-
-    # Definimos tripleta
-    tripleta3 = Group(palabra("sujeto")                           + palabra("predicado") + palabra("objeto"))
-    tripleta4 = Group(Combine(palabra + " " + palabra)("sujeto")  + palabra("predicado") + palabra("objeto")) # Suponemos sujeto de 2 palabras
-
-    tripleta = tripleta4 | tripleta3
-
-    # Definimos regla
-    flecha = Suppress(Optional(" ") + Literal("<-") + Optional(" "))
-    coma = Suppress(Optional(" ") + Literal(",") + Optional(" "))
-    lista_efectos = Group(tripleta) + ZeroOrMore(coma + Group(tripleta))
-
-    regla = Group(tripleta)("causa") + flecha + lista_efectos("efectos")
-
-    # Definimos el parser completo
-    parser_linea = regla | tripleta
-
     # Separar entre reglas y hechos
     hechos = []
     reglas = []
 
-    with Path(ruta_archivo).open('r') as archivo:
-        for linea in archivo:
+    with Path(ruta_archivo).open('r', encoding='utf-8') as archivo:
+        for num_linea, linea in enumerate(archivo, 1):
             linea = linea.strip()
             
+            # Ignorar líneas vacías y comentarios
             if not linea or linea.startswith("#"):
-                continue  # Saltamos líneas vacías y comentarios
+                continue
 
             try:
-                resultado = parser_linea.parseString(linea)
-
-                if 'causa' in resultado and 'efectos' in resultado:
-                    # Es una regla
-                    causa = resultado['causa'][0]
-                    causa_tripleta = Tripleta(causa['sujeto'], causa['predicado'], causa['objeto'])
-
-                    efectos_tripletas = []
-                    for efecto in resultado['efectos']:
-                        efecto = efecto[0]
-                        efecto_tripleta = Tripleta(efecto['sujeto'], efecto['predicado'], efecto['objeto'])
-                        efectos_tripletas.append(efecto_tripleta)
-
-                    reglas.append((
-                        causa_tripleta,
-                        efectos_tripletas
-                    ))
-                else:
-                    # Es un hecho
-                    hecho = resultado[0]
-                    hechos.append(Tripleta(hecho['sujeto'], hecho['predicado'], hecho['objeto']))
+                tipo, contenido = _parser.parsear_linea_archivo(linea)
+                
+                if tipo == 'regla':
+                    reglas.append(contenido)
+                else:  # 'hecho' o 'tripleta'
+                    hechos.append(contenido)
+                    
+            except ParseException as e:
+                warnings.warn(
+                    f"Línea {num_linea}: No se pudo analizar '{linea}'. "
+                    f"Error en columna {e.column}: {e.msg}",
+                    RuntimeWarning
+                )
             except Exception as e:
-                warnings.warn(f"No se pudo analizar la línea: '{linea}'. Motivo: {e}", RuntimeWarning)
-                continue
+                warnings.warn(
+                    f"Línea {num_linea}: Error inesperado al procesar '{linea}': {e}",
+                    RuntimeWarning
+                )
+
     return hechos, reglas
 
 def consultar(entrada: str, base_conocimiento: list[Tripleta], hechos_deducidos: list[Tripleta]) -> None:
     """
-    Procesa una consulta y muestra los resultados.
+    Procesa una consulta usando el parser modular.
+    
     Args:
-        entrada: texto en formato "sujeto predicado objeto?"
+        entrada: texto en formato "sujeto predicado objeto?" o "razona si ...?"
         base_conocimiento: lista de hechos base
         hechos_deducidos: lista de hechos deducidos
     """
-    # Quitar el ? final y dividir en palabras
-    consulta_text = entrada[:-1].strip()
-    palabras = consulta_text.split()
-    
-    if len(palabras) < 3:
-        print("Error: la consulta debe tener al menos 3 palabras.\n")
-        return
+    try:
+        consulta_tripleta, es_razonamiento = _parser.parsear_consulta(entrada)
         
-    if len(palabras) == 2:
-        palabras.append("X")
+        # Si es razonamiento, no procesamos aquí (se debe llamar a razona directamente)
+        if es_razonamiento:
+            print("Use el comando 'razona si' correctamente desde el CLI.\n")
+            return
         
-    mitad = len(palabras) // 2
-    predicado = palabras[mitad]
-    sujeto = " ".join(palabras[:mitad])
-    objeto = " ".join(palabras[mitad + 1:])
+        base_total_hechos = base_conocimiento + hechos_deducidos
+        
+        # Detectar si hay variables
+        tiene_variables = any(
+            t[0].isupper() 
+            for t in (consulta_tripleta.sujeto, consulta_tripleta.predicado, consulta_tripleta.objeto) 
+            if t
+        )
 
-    consulta_tripleta = Tripleta(sujeto, predicado, objeto)
-    base_total_hechos = base_conocimiento + hechos_deducidos
+        if tiene_variables:
+            resultados = []
+            for hecho in base_total_hechos:
+                asignacion = {}
+                ok = True
 
-    # Detectar si hay variables
-    tiene_variables = any(t[0].isupper() for t in (sujeto, predicado, objeto) if t)
-
-    if tiene_variables:
-        resultados = []
-        # Comprobar cada hecho y construir sustituciones
-        for hecho in base_total_hechos:
-            asignacion = {}
-            ok = True
-
-            campos_consulta = [sujeto, predicado, objeto]
-            try:
+                campos_consulta = [consulta_tripleta.sujeto, consulta_tripleta.predicado, consulta_tripleta.objeto]
                 campos_hecho = [hecho.sujeto, hecho.predicado, hecho.objeto]
-            except Exception:
-                # Si Tripleta no expone atributos por nombre, intentar indexado
-                campos_hecho = [getattr(hecho, 'sujeto', None), getattr(hecho, 'predicado', None), getattr(hecho, 'objeto', None)]
 
-            for c_val, h_val in zip(campos_consulta, campos_hecho):
-                if not c_val:
-                    # campo vacío en la consulta: no coincide
-                    ok = False
-                    break
-
-                if c_val[0].isupper():
-                    var = c_val
-                    # consistencia de la variable si aparece repetida
-                    if var in asignacion:
-                        if asignacion[var] != h_val:
-                            ok = False
-                            break
-                    else:
-                        asignacion[var] = h_val
-                else:
-                    # debe coincidir exactamente
-                    if c_val != h_val:
+                for c_val, h_val in zip(campos_consulta, campos_hecho):
+                    if not c_val:
+                        # campo vacío en la consulta: no coincide
                         ok = False
                         break
 
-            if ok and asignacion:
-                resultados.append(asignacion)
+                    if c_val[0].isupper():
+                        var = c_val
+                        # consistencia de la variable si aparece repetida
+                        if var in asignacion:
+                            if asignacion[var] != h_val:
+                                ok = False
+                                break
+                        else:
+                            asignacion[var] = h_val
+                    else:
+                        # debe coincidir exactamente
+                        if c_val != h_val:
+                            ok = False
+                            break
 
-        if resultados:
-            print("\nResultados encontrados:")
-            for r in resultados:
-                for var, valor in r.items():
-                    print(f"{var} = {valor}")
-            print()
-        else:
-            print("No se encontraron coincidencias.\n")
-    else:
-        if consulta_tripleta in base_total_hechos:
-            print("Sí, está en la base de conocimiento.\n")
-        else:
-            print("No, no está en la base de conocimiento.\n")
+                if ok and asignacion:
+                    resultados.append(asignacion)
 
-def añadir(entrada : str , base_conocimiento : list[Tripleta, Tripleta]):
-    """Añade un hecho a la base de conocimiento."""
-    # Limpiar la entrada (eliminar el punto al final)
-    hecho = entrada.strip().rstrip('.')
-    
-    # Dividir la entrada en sujeto, predicado y objeto
+            if resultados:
+                print("\nResultados encontrados:")
+                for r in resultados:
+                    for var, valor in r.items():
+                        print(f"  {var} = {valor}")
+                print()
+            else:
+                print("No se encontraron coincidencias.\n")
+        else:
+            if consulta_tripleta in base_total_hechos:
+                print("Sí, está en la base de conocimiento.\n")
+            else:
+                print("No, no está en la base de conocimiento.\n")
+                
+    except ParseException as e:
+        print(f"Error de sintaxis: {e.msg}\n")
+    except Exception as e:
+        print(f"Error al procesar consulta: {e}\n")
+
+def añadir(entrada: str, base_conocimiento: list[Tripleta]) -> None:
+    """Añade un hecho a la base de conocimiento usando el parser."""
     try:
-        sujeto, predicado, objeto = hecho.split()
+        tripleta, extension = _parser.parsear_afirmacion(entrada)
+        base_conocimiento.append(tripleta)
         
-        # Crear una nueva tripleta
-        nuevo_hecho = Tripleta(sujeto, predicado, objeto)
+        msg = f"Hecho añadido: {tripleta}"
+        if extension:
+            detalles = []
+            if extension.difusa is not None:
+                detalles.append(f"difusa={extension.difusa}")
+            if extension.precedencia is not None:
+                detalles.append(f"precedencia={extension.precedencia}")
+            if extension.restricciones:
+                detalles.append(f"restricciones={extension.restricciones}")
+            msg += f" [{'; '.join(detalles)}]"
         
-        # Añadir el nuevo hecho a la base de conocimiento
-        base_conocimiento.append(nuevo_hecho)
+        print(f"{msg}\n")
         
-        print(f"Hecho añadido: {nuevo_hecho}")
-    except ValueError:
-        print("Error: El hecho debe estar en el formato 'sujeto predicado objeto'.")
+    except ParseException as e:
+        print(f"Error de sintaxis: {e.msg}\n")
+    except Exception as e:
+        print(f"Error al añadir hecho: {e}\n")
 
 def revocar(entrada: str, base_conocimiento: list[Tripleta]) -> bool:
-    """
-    Revoca (elimina) un hecho de la base de conocimiento.
-    Args:
-        entrada: texto en formato "no sujeto predicado objeto."
-        base_conocimiento: lista de tripletas donde buscar y eliminar
-    Returns:
-        bool: True si se encontró y eliminó, False si no existía
-    """
-    # Limpiar entrada (quitar "no" inicial y punto final)
-    hecho = entrada.strip()[3:-1].strip()
-    
+    """Revoca (elimina) un hecho de la base de conocimiento usando el parser."""
     try:
-        # Dividir en sujeto predicado objeto
-        palabras = hecho.split()
-        if len(palabras) != 3:
-            return False
-            
-        tripleta = Tripleta(palabras[0], palabras[1], palabras[2])
+        tripleta = _parser.parsear_negacion(entrada)
         
-        # Buscar y eliminar si existe
         if tripleta in base_conocimiento:
             base_conocimiento.remove(tripleta)
             return True
-            
+        
         return False
         
-    except ValueError:
+    except ParseException as e:
+        print(f"Error de sintaxis: {e.msg}\n")
+        return False
+    except Exception as e:
+        print(f"Error al revocar hecho: {e}\n")
         return False
 
-def descubrir(hechos: list[Tripleta], reglas: list[tuple[Tripleta, Tripleta]]) -> list[Tripleta]:
+def descubrir(hechos: list[Tripleta], reglas: list[Regla]) -> list[Tripleta]:
     """
-    Aplica las reglas sobre los hechos y devuelve los nuevos hechos deducidos sin modificar la base de conocimiento original.
-    Repite hasta que no se infieran más hechos.
+    Aplica encadenamiento hacia adelante sobre las reglas.
+    Retorna los nuevos hechos deducidos sin modificar la base original.
     """
     hechos_deducidos = []
+    hechos_totales = hechos.copy()
 
     nuevos = True
     while nuevos:
         nuevos = False
-        for consecuente, antecedente in reglas:
-            # Si el antecedente está en los hechos, deducimos el consecuente
-            if antecedente in hechos and consecuente not in hechos_deducidos:
-                hechos_deducidos.append(consecuente)  # Añadimos el consecuente a los hechos deducidos
-                nuevos = True  # Hay nuevos hechos que deducir
+        for regla in reglas:
+            # Verificar si todos los antecedentes están en los hechos
+            if all(ant in hechos_totales for ant in regla.antecedentes):
+                # Si el consecuente no está ya deducido, lo añadimos
+                if regla.consecuente not in hechos_totales:
+                    hechos_deducidos.append(regla.consecuente)
+                    hechos_totales.append(regla.consecuente)
+                    nuevos = True
+                    
     return hechos_deducidos
 
-
-# Comando debug. Falta integrarlo en cli o no se donde para poder usarlo. Tampoco sé si hay que darle la bc por parámetro.
-def debug():
+def debug(hechos: list[Tripleta], hechos_deducidos: list[Tripleta], reglas: list[Regla]):
     """Muestra toda la base de conocimiento cargada en memoria."""
-    if not base_conocimiento:
-        print("La base de conocimiento está vacía.")
-    else:
-        print("\nBase de conocimiento cargada en memoria:")
-        for tripleta in base_conocimiento:
-            print(tripleta)
+    print("\n" + "=" * 5 + " BASE DE CONOCIMIENTO EN MEMORIA" + "=" * 5)
+    
+    print(f"\n--- HECHOS BASE ({len(hechos)}) ---")
+    for h in hechos:
+        print(f"  - {h}")
+    
+    print(f"\n--- HECHOS DEDUCIDOS ({len(hechos_deducidos)}) ---")
+    for h in hechos_deducidos:
+        print(f"  - {h}")
+    
+    print(f"\n--- REGLAS ({len(reglas)}) ---")
+    for regla in reglas:
+        antecedentes_str = ", ".join(str(ant) for ant in regla.antecedentes)
+        print(f"  {regla.consecuente} <- {antecedentes_str}")
+        if regla.extension:
+            ext = regla.extension
+            detalles = []
+            if ext.difusa is not None:
+                detalles.append(f"difusa={ext.difusa}")
+            if ext.precedencia is not None:
+                detalles.append(f"precedencia={ext.precedencia}")
+            if ext.restricciones:
+                detalles.append(f"restricciones={ext.restricciones}")
+            print(f"    [{'; '.join(detalles)}]")
+    
+    print("=" * 25 + "\n")
 
-# Razonamiento hacia atrás
-def razona(consulta: Tripleta, hechos: list[Tripleta], reglas: list[tuple[Tripleta, list[Tripleta]]]) -> bool:
+def razona(consulta: Tripleta, hechos: list[Tripleta], reglas: list[Regla], 
+           visitados: set = None) -> bool:
     """
-    Aplica encadenamiento hacia atrás para deducir si la consulta puede ser derivada
-    a partir de la base de conocimiento.
+    Aplica encadenamiento hacia atrás para deducir si la consulta es derivable.
     
     Args:
-        consulta (Tripleta): La consulta que el usuario hace, que debe ser derivada.
-        hechos (list[Tripleta]): Lista de hechos conocidos en la base de conocimiento.
-        reglas (list[tuple[Tripleta, list[Tripleta]]]): Lista de reglas con su antecedente (list de tripletas) y consecuente (una tripleta).
+        consulta: La tripleta que queremos demostrar
+        hechos: Lista de hechos conocidos
+        reglas: Lista de reglas de producción
+        visitados: Conjunto de consultas ya visitadas (para evitar ciclos)
     
     Returns:
-        bool: Si la consulta es deducible a partir de los hechos y reglas.
+        bool: True si la consulta es deducible
     """
-    print(f"Procesando consulta: {consulta}")  # Depuración
-
-    # 1. Verificar si la consulta ya está en los hechos
+    if visitados is None:
+        visitados = set()
+    
+    # Evitar ciclos infinitos
+    consulta_tuple = (consulta.sujeto, consulta.predicado, consulta.objeto)
+    if consulta_tuple in visitados:
+        return False
+    visitados.add(consulta_tuple)
+    
+    # 1. Verificar si está directamente en los hechos
     if consulta in hechos:
-        print(f"Consulta {consulta} encontrada directamente en los hechos.")  # Depuración
-        return True  # Si ya está en los hechos, la respuesta es sí
-
-    # 2. Iterar sobre las reglas para ver si el consecuente coincide con la consulta
-    for consecuente, antecedentes in reglas:
-        print(f"Regla: {consecuente} <- {antecedentes}")  # Depuración
-
-        # Si el consecuente coincide con la consulta, intentamos verificar los antecedentes
-        if consecuente == consulta:
-            print(f"Consiguió encontrar un consecuente coincidente: {consecuente}")  # Depuración
-
-            # 3. Verificar si todos los antecedentes están en los hechos
-            if all(antecedente in hechos for antecedente in antecedentes):
-                print(f"Todos los antecedentes se cumplen para: {consulta}")  # Depuración
-                return True  # Si todos los antecedentes se cumplen, deducimos la consulta
-
-            # 4. Si los antecedentes no están en los hechos, intentar razonar hacia atrás
-            for antecedente in antecedentes:
-                print(f"Intentando razonar el antecedente: {antecedente}")  # Depuración
-                if razona(antecedente, hechos, reglas):
-                    # Si un antecedente puede ser deducido, lo añadimos a los hechos
-                    print(f"Se ha deducido el antecedente: {antecedente}, añadiéndolo a los hechos.")  # Depuración
-                    hechos.append(antecedente)  # Añadimos el antecedente a los hechos
-                    return True  # Si hemos deducido el antecedente, podemos deducir el consecuente
-
-    print(f"No se puede deducir la consulta {consulta}.")  # Depuración
-    return False  # Si no se puede deducir la consulta, retornamos False
+        return True
+    
+    # 2. Buscar reglas cuyo consecuente coincida con la consulta
+    for regla in reglas:
+        if regla.consecuente == consulta:
+            # Verificar si todos los antecedentes se pueden demostrar
+            if all(razona(ant, hechos, reglas, visitados) for ant in regla.antecedentes):
+                return True
+    
+    return False
