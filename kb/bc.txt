@@ -6,7 +6,11 @@
 # para que se de el consecuente se tienen que cumplir todos los antecedentes de esa regla.
 # Para organizar mejor la base la hemos dividido en dos grupos: Hechos y Reglas.
 
-# Hechos:
+# --------------------------------------------------
+# SECCIÓN 1: INGREDIENTES Y PROPIEDADES BÁSICAS
+# --------------------------------------------------
+# HECHOS:
+
 tomate cantidad poco.
 tomate sabor rico.
 cebolla cantidad mucho.
@@ -82,7 +86,7 @@ pan cantidad mucho.
 harina contiene gluten.
 
 
-# Reglas:
+# REGLAS:
 tomate disponible despensa <- tomate cantidad mucho, tomate cantidad poco.
 tomate necesidad comprar <- tomate cantidad poco.
 receta disponible gazpacho <- tomate disponible despensa, cebolla cantidad mucho.
@@ -100,3 +104,21 @@ receta contiene vitamina_C <- receta contiene naranja.
 receta contiene pan <- pan cantidad mucho.
 receta contiene gluten <- receta contiene pan.
 pan contiene harina <- pan cantidad mucho.
+
+
+# --------------------------------------------------
+# SECCIÓN 2: GESTIÓN DE DESPENSA 
+# --------------------------------------------------
+
+# --------------------------------------------------
+# SECCIÓN 3: COMPOSICIÓN DE RECETAS
+# --------------------------------------------------
+
+# --------------------------------------------------
+# SECCIÓN 4: MARIDAJES Y COMBINACIONES
+# --------------------------------------------------
+
+# --------------------------------------------------
+# SECCIÓN 5: RESTRICCIONES DIETÉTICAS Y ALÉRGENOS
+# --------------------------------------------------
+
