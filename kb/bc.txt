@@ -114,6 +114,387 @@ pan contiene harina <- pan cantidad mucho.
 # SECCIÓN 3: COMPOSICIÓN DE RECETAS
 # --------------------------------------------------
 
+# Bica blanca de Laza -src: https://www.cocinatis.com/receta/bica-blanca-de-laza_23_1147652.html
+# La bica blanca de Laza es una receta tradicional de este pueblo, de ahí su nombre.
+# Se diferencia de las otras bicas gallegas en que solo utilizamos 
+# claras de huevo para hacer esta versión, obteniendo un bizcocho más blanco que el tradicional.
+
+bica_blanca_laza es receta
+
+# Ingredientes
+bica_blanca_laza contiene ingrediente001.
+ingrediente001 es nata.
+ingrediente001 necesita 200ml.
+
+bica_blanca_laza contiene ingrediente002.
+ingrediente002 es clara_huevo.
+ingrediente002 necesita 5u.
+
+bica_blanca_laza contiene ingrediente003.
+ingrediente003 es azúcar.
+ingrediente003 necesita 250gr.
+
+bica_blanca_laza contiene ingrediente004
+ingrediente004 es harina_trigo.
+ingrediente004 necesita 200gr.
+
+bica_blanza_laza contiene ingrediente005.
+ingrediente005 es canela_polvo.
+ingrediente005 necesita 1u.
+
+# Información
+bica_blanca_laza raciones 6.
+bica_blanca_laza coste bajo.
+bica_blanca_laza dificultad fácil.
+bica_blanca_laza preparación 15min.
+bica_blanca_laza cocinado 30min.
+bica_blanca_laza tiempo_total 45min.
+
+# Información nutricional
+bica_blanca_laza energía 284kcal.
+bica_blanca_laza proteína 2840mg.
+
+# Alérgenos
+bica_blanca_laza contiene lácteos.
+bica_blanca_laza contiene huevos.
+bica_blanca_laza contiene gluten.
+
+# Espaguetis con salmón -src: https://www.cocinatis.com/receta/espaguetis-con-salmon_23_1147316.html
+# Receta rápida de espaguetis con salmón para un plato sabroso y cremoso
+
+espaguetis_con_salmon es receta
+
+# Ingredientes
+espaguetis_con_salmon contiene ingrediente006.
+ingrediente006 es espaguetis.
+ingrediente006 necesita 200gr.
+
+espaguetis_con_salmon contiene ingrediente006.
+ingrediente007 es sal.
+
+espaguetis_con_salmon contiene ingrediente008.
+ingrediente008 es aceite_oliva.
+ingrediente008 necesita 1cucharada.
+
+espaguetis_con_salmon contiene ingrediente009.
+ingrediente009 es ajo.
+ingrediente009 necesita 1diente.
+
+espaguetis_con_salmon contiene ingrediente010.
+ingrediente010 es tomates_secos_en_aceite.
+ingrediente009 necesita 2cucharada.
+
+espaguetis_con_salmon contiene ingrediente011.
+ingrediente011 es nata.
+ingrediente011 necesita 200ml.
+
+espaguetis_con_salmon contiene ingrediente012.
+ingrediente012 es pimienta_negra.
+
+espaguetis_con_salmon contiene ingrediente013.
+ingrediente013 es salmón.
+ingrediente013 necesita 200gr.
+
+espaguetis_con_salmon contiene ingrediente014.
+ingrediente014 es albahaca.
+
+# Información
+espaguetis_con_salmon raciones 2.
+espaguetis_con_salmon coste bajo.
+espaguetis_con_salmon dificultad fácil.
+espaguetis_con_salmon preparacion 5m.
+espaguetis_con_salmon cocinado 20m.
+espaguetis_con_salmon tiempo_total 25m.
+
+# Información nutricional
+espaguetis_con_salmon energía 992kcal.
+espaguetis_con_salmon proteina 37500mg.
+espaguetis_con_salmon hidratos 93400mg.
+espaguetis_con_salmon azucares 16700mg.
+espaguetis_con_salmon grasa_total 53790mg.
+espaguetis_con_salmon grasa_saturada 25950mg.
+espaguetis_con_salmon fibra 7400mg.
+espaguetis_con_salmon sal 1800mg.
+
+# Alérgenos
+espaguetis_con_salmon contiene gluten.
+espaguetis_con_salmon contiene lácteos.
+espaguetis_con_salmon contiene pescado.
+
+# Lentejas con quinoa -src: https://www.cocinatis.com/receta/lentejas-con-quinoa.html
+# Una opción nutritiva y sabrosa, ideal para toda la familia.
+# Un plato completo y reconfortante, perfecto para el día a día.
+
+lentejas_con_quinoa es receta
+
+# Ingredientes
+lentejas_con_quinoa contiene ingrediente015.
+ingrediente015 es lentejas.
+ingrediente015 necesita 200gr.
+
+lentejas_con_quinoa contiene ingrediente016.
+ingrediente016 es quinoa.
+ingrediente016 necesita 75gr.
+
+lentejas_con_quinoa contiene ingrediente017.
+ingrediente017 es pimiento_verde.
+ingrediente017 necesita 1u.
+
+lentejas_con_quinoa contiene ingrediente018.
+ingrediente018 es zanahoria.
+ingrediente018 necesita 1u.
+
+lentejas_con_quinoa contiene ingrediente019.
+ingrediente019 es tomate.
+ingrediente019 necesita 1u.
+
+lentejas_con_quinoa contiene ingrediente020.
+ingrediente020 es ajo.
+ingrediente020 necesita 2diente.
+
+lentejas_con_quinoa contiene ingrediente021.
+ingrediente021 es pimentón.
+ingrediente021 necesita 1cucharadita.
+
+lentejas_con_quinoa contiene ingrediente022.
+ingrediente022 es canela.
+ingrediente022 necesita media_cucharadita.
+
+lentejas_con_quinoa contiene ingrediente023.
+ingrediente023 es comino.
+ingrediente023 necesita 1cucharadita.
+
+lentejas_con_quinoa contiene ingrediente024.
+ingrediente024 es sal.
+
+lentejas_con_quinoa contiene ingrediente025.
+ingrediente025 es pimienta.
+
+lentejas_con_quinoa contiene ingrediente026.
+ingrediente026 es perejil.
+
+# Información
+lentejas_con_quinoa raciones 6.
+lentejas_con_quinoa coste bajo.
+lentejas_con_quinoa dificultad fácil.
+lentejas_con_quinoa preparacion 10m.
+lentejas_con_quinoa cocinado 50m.
+lentejas_con_quinoa tiempo_total 60m.
+
+# Información nutricional
+lentejas_con_quinoa energía 221kcal.
+lentejas_con_quinoa proteina 11000mg.
+lentejas_con_quinoa hidratos 30000mg.
+lentejas_con_quinoa azucares 4000mg.
+lentejas_con_quinoa grasa_total 6000mg.
+lentejas_con_quinoa grasa_saturada 1000mg.
+lentejas_con_quinoa fibra 6000mg.
+lentejas_con_quinoa sal 1040mg.
+
+# Alérgenos
+# --
+
+# Muslos de pollo en freidora de aire -src: https://www.cocinatis.com/receta/muslos-de-pollo-en-freidora-de-aire_23_1146453.html
+# Descubre el tiempo y la temperatura ideales para hacer unos muslos de pollo en airfryer jugosos 
+# Lo mejor es su versatilidad, ya que puedes adaptar la mezcla de especias a tu gusto, logrando desde un sabor clásico hasta uno más atrevido.
+
+muslos_de_pollo_en_freidora_de_aire es receta
+
+# Ingredientes
+muslos_de_pollo_en_freidora_de_aire contiene ingrediente027.
+ingrediente027 es pollo.
+ingrediente027 necesita 6muslo.
+
+muslos_de_pollo_en_freidora_de_aire contiene ingrediente028.
+ingrediente028 es sal.
+
+muslos_de_pollo_en_freidora_de_aire contiene ingrediente029.
+ingrediente029 es pimenton.
+ingrediente029 necesita media_cucharadita.
+
+muslos_de_pollo_en_freidora_de_aire contiene ingrediente030.
+ingrediente030 es tomillo.
+ingrediente008 necesita media_cucharadita.
+
+muslos_de_pollo_en_freidora_de_aire contiene ingrediente031.
+ingrediente031 es cayena_en_polvo.
+ingrediente009 necesita media_cucharadita.
+
+muslos_de_pollo_en_freidora_de_aire contiene ingrediente032.
+ingrediente032 es ajo_en_polvo.
+ingrediente032 necesita media_cucharadita.
+
+muslos_de_pollo_en_freidora_de_aire contiene ingrediente033.
+ingrediente033 es miel.
+ingrediente033 necesita 1cucharada.
+
+muslos_de_pollo_en_freidora_de_aire contiene ingrediente034.
+ingrediente034 es aceite_oliva.
+ingrediente034 necesita 1cucharada.
+
+muslos_de_pollo_en_freidora_de_aire contiene ingrediente035.
+ingrediente035 es zumo_limón.
+ingrediente035 necesita 1cucharada.
+
+muslos_de_pollo_en_freidora_de_aire contiene ingrediente036.
+ingrediente036 es patata.
+ingrediente036 necesita 2u.
+
+# Información
+muslos_de_pollo_en_freidora_de_aire raciones 3.
+muslos_de_pollo_en_freidora_de_aire coste bajo.
+muslos_de_pollo_en_freidora_de_aire dificultad fácil.
+muslos_de_pollo_en_freidora_de_aire preparacion 5m.
+muslos_de_pollo_en_freidora_de_aire cocinado 1h30m.
+muslos_de_pollo_en_freidora_de_aire tiempo_total 1h35m.
+
+# Información nutricional
+muslos_de_pollo_en_freidora_de_aire proteina 45980mg.
+muslos_de_pollo_en_freidora_de_aire hidratos 23830mg.
+muslos_de_pollo_en_freidora_de_aire azucares 2540mg.
+muslos_de_pollo_en_freidora_de_aire grasa_total 16280mg.
+muslos_de_pollo_en_freidora_de_aire grasa_saturada 4260mg.
+muslos_de_pollo_en_freidora_de_aire fibra 3260mg.
+muslos_de_pollo_en_freidora_de_aire sal 1600mg.
+
+# Alérgenos
+# --
+
+# Quiche de salmón -src: https://www.cocinatis.com/receta/quiche-de-salmon_23_1146997.html
+
+quiche_de_salmon es receta
+
+# Ingredientes
+quiche_de_salmon contiene ingrediente037.
+ingrediente037 es masa_de_hojaldre.
+ingrediente037 necesita 1u.
+
+quiche_de_salmon contiene ingrediente038.
+ingrediente038 es aceite_oliva.
+ingrediente038 necesita 1cucharada.
+
+quiche_de_salmon contiene ingrediente039.
+ingrediente039 es ajo.
+ingrediente007 necesita 2diente.
+
+quiche_de_salmon contiene ingrediente040.
+ingrediente040 es brocoli.
+ingrediente008 necesita 200gr.
+
+quiche_de_salmon contiene ingrediente041.
+ingrediente041 es huevo.
+ingrediente041 necesita 3u.
+
+quiche_de_salmon contiene ingrediente042.
+ingrediente042 es nata.
+ingrediente010 necesita 200ml.
+
+quiche_de_salmon contiene ingrediente043.
+ingrediente043 es queso_rallado.
+ingrediente043 necesita 75gr.
+
+quiche_de_salmon contiene ingrediente044.
+ingrediente044 es sal.
+
+quiche_de_salmon contiene ingrediente045.
+ingrediente045 es pimienta_negra.
+
+quiche_de_salmon contiene ingrediente046.
+ingrediente046 es nuez_moscada.
+
+quiche_de_salmon contiene ingrediente047.
+ingrediente047 es salmón.
+ingrediente047 necesita 150gr.
+
+# Información
+quiche_de_salmon raciones 4.
+quiche_de_salmon coste bajo.
+quiche_de_salmon dificultad fácil.
+quiche_de_salmon preparacion 20m.
+quiche_de_salmon cocinado 55m.
+quiche_de_salmon tiempo_total 1h15m.
+
+# Información nutricional
+quiche_de_salmon proteina 28970mg.
+quiche_de_salmon hidratos 29650mg.
+quiche_de_salmon azucares 2560mg.
+quiche_de_salmon grasa_total 63360mg.
+quiche_de_salmon grasa_saturada 28550mg.
+quiche_de_salmon fibra 3100mg.
+quiche_de_salmon sal 2200mg.
+
+# Alérgenos
+quiche_de_salmon contiene gluten.
+quiche_de_salmon contiene lácteos.
+quiche_de_salmon contiene huevos.
+quiche_de_salmon contiene pescado.
+quiche_de_salmon contiene frutos_secos.
+
+# Ensalada de garbanzos mediterránea -src: https://www.cocinatis.com/receta/ensalada-de-garbanzos-mediterranea_23_1145925.html
+# Cómo hacer una sabrosa, completa y nutritiva ensalada mediterránea en pocos minutos 
+# Es muy fácil de preparar y de adaptara nuestros gustos.
+
+ensalada_de_garbanzos_mediterranea es receta
+
+# Ingredientes
+ensalada_de_garbanzos_mediterranea contiene ingrediente048.
+ingrediente048 es huevo_duro.
+ingrediente048 necesita 2u.
+
+ensalada_de_garbanzos_mediterranea contiene ingrediente049.
+ingrediente049 es tomate.
+ingrediente049 necesita 1u.
+
+ensalada_de_garbanzos_mediterranea contiene ingrediente050.
+ingrediente050 es cebolla_roja.
+ingrediente050 necesita 1u.
+
+ensalada_de_garbanzos_mediterranea contiene ingrediente051.
+ingrediente051 es aceituna.
+ingrediente051 necesita 60gr.
+
+ensalada_de_garbanzos_mediterranea contiene ingrediente052.
+ingrediente052 es pimiento_rojo.
+ingrediente052 necesita 1_2u.
+
+ensalada_de_garbanzos_mediterranea contiene ingrediente053.
+ingrediente053 es aceite_oliva.
+ingrediente053 necesita 2cucharada.
+
+ensalada_de_garbanzos_mediterranea contiene ingrediente054.
+ingrediente054 es vinagre.
+ingrediente054 necesita 1cucharadita.
+
+ensalada_de_garbanzos_mediterranea contiene ingrediente055.
+ingrediente055 es sal.
+
+ensalada_de_garbanzos_mediterranea contiene ingrediente055.
+ingrediente055 es pimienta_negra.
+
+ensalada_de_garbanzos_mediterranea contiene ingrediente056.
+ingrediente056 es garbanzo.
+ingrediente056 necesita 200gr.
+
+# Información
+ensalada_de_garbanzos_mediterranea raciones 2.
+ensalada_de_garbanzos_mediterranea coste bajo.
+ensalada_de_garbanzos_mediterranea dificultad fácil.
+ensalada_de_garbanzos_mediterranea preparacion 15m.
+ensalada_de_garbanzos_mediterranea tiempo_total 15m.
+
+# Información nutricional
+ensalada_de_garbanzos_mediterranea energía 732kcal
+ensalada_de_garbanzos_mediterranea proteina 33100mg.
+ensalada_de_garbanzos_mediterranea hidratos 73420mg.
+ensalada_de_garbanzos_mediterranea azucares 7110mg.
+ensalada_de_garbanzos_mediterranea grasa_total 26800mg.
+ensalada_de_garbanzos_mediterranea grasa_saturada 4010mg.
+ensalada_de_garbanzos_mediterranea fibra 18700mg.
+ensalada_de_garbanzos_mediterranea sal 1900mg.
+
+# Alérgenos
+ensalada_de_garbanzos_mediterranea contiene huevos.
+
 # --------------------------------------------------
 # SECCIÓN 4: MARIDAJES Y COMBINACIONES
 # --------------------------------------------------
