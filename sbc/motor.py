@@ -16,6 +16,18 @@
 #         objetos Sustitucion con las asignaciones de variables (términos cuyo
 #         nombre comienza con mayúscula).
 #
+#     - añadir(entrada, base_conocimiento):
+#         Añade un nuevo hecho a la base de conocimiento después de parsearlo.
+#
+#     - revocar(entrada, base_conocimiento):
+#         Revoca (elimina) un hecho de la base de conocimiento.
+#
+#      - descubrir(hechos, reglas):
+#         Aplica encadenamiento hacia adelante sobre las reglas para deducir nuevos hechos.
+#
+#     - razona(consulta, hechos, reglas, visitados):
+#         Aplica encadenamiento hacia atrás para deducir si la consulta es derivable.
+#
 #   Formato esperado de entrada:
 #     Cada línea debe contener palabras separadas por espacios.
 #     Las líneas pueden representar:
@@ -197,6 +209,7 @@ def revocar(entrada: str, base_conocimiento: list[Tripleta]) -> bool:
         print(f"Error al revocar hecho: {e}\n")
         return False
 
+# Encadenamiento hacia adelante
 def descubrir(hechos: list[Tripleta], reglas: list[Regla]) -> list[Tripleta]:
     """
     Aplica encadenamiento hacia adelante sobre las reglas.
@@ -248,19 +261,11 @@ def debug(hechos: list[Tripleta], hechos_deducidos: list[Tripleta], reglas: list
     
     print("=" * 25 + "\n")
 
+# Encadenamiento hacia atrás    
 def razona(consulta: Tripleta, hechos: list[Tripleta], reglas: list[Regla], 
            visitados: set = None) -> bool:
     """
     Aplica encadenamiento hacia atrás para deducir si la consulta es derivable.
-    
-    Args:
-        consulta: La tripleta que queremos demostrar
-        hechos: Lista de hechos conocidos
-        reglas: Lista de reglas de producción
-        visitados: Conjunto de consultas ya visitadas (para evitar ciclos)
-    
-    Returns:
-        bool: True si la consulta es deducible
     """
     if visitados is None:
         visitados = set()
