@@ -38,7 +38,7 @@ class ParserSBC:
         digito = "0123456789"
         
         # Términos básicos
-        self.literal = Word(minus, minus + mayus + digito + "_")
+        self.literal = Word(minus + digito, minus + mayus + digito + "_")
         self.variable = Word(mayus, minus + mayus + digito + "_")
         self.termino = self.variable | self.literal
         
@@ -212,8 +212,7 @@ class ParserSBC:
             
             antecedentes = []
             for ant in resultado['antecedentes']:
-                if isinstance(ant, list):
-                    ant = ant[0]
+                ant = ant[0]
                 antecedentes.append(
                     Tripleta(ant['sujeto'], ant['predicado'], ant['objeto'])
                 )
