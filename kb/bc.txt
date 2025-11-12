@@ -7,93 +7,96 @@
 # Para organizar mejor la base la hemos dividido en dos grupos: Hechos y Reglas.
 
 # Hechos:
-tomate cantidad mucho
-tomate sabor rico
-cebolla cantidad mucho
-cebolla color morado
-pera cantidad poco
-pera sabor dulce
-lechuga cantidad poco
-lechuga tipo iceberg
-vino tinto marida carne
-vino tinto color rojo
-manzana color rojo
-manzana sabor acido
-manzana temporada otoño
-manzana origen espana
-manzana cantidad mucho
-manzana tipo fuji
-manzana calorias 52
-platano color amarillo
-platano sabor dulce
-platano cantidad mucho
-platano origen ecuador
-platano maduro textura blando
-banana cantidad poco
-zanahoria color naranja
-zanahoria sabor dulce
-zanahoria contiene betacaroteno
-pimiento color rojo
-pimiento color verde
-pimiento picante leve
-pepino color verde
-pepino fresco textura crujiente
-ajo sabor fuerte
-ajo origen china
-aceite oliva origen espana
-aceite oliva sabor suave
-queso tipo cheddar
-queso sabor salado
-leche origen vaca
-leche tipo descremada
-pollo tipo pechuga
-pollo sabor neutro
-pescado tipo salmon
-pescado origen oceano
-vino blanco marida pescado
-vino rosado color claro
-cerveza tipo lager
-cerveza alcohol moderado
-pan tipo integral
-pan sabor neutro
-arroz tipo basmati
-arroz origen india
-pasta tipo spaghetti
-pasta coccion 8min
-tomate origen invernadero
-cebolla sabor intenso
-pera color verde
-lechuga textura crujiente
-vino tinto cuerpo pleno
-vino tinto origen rioja
-aceituna color verde
-aceituna sabor salado
-miel origen abejas
-miel sabor dulce
-azucar tipo blanco
-azucar cantidad mucho
-sal tipo marina
-sal uso cocina
-limon sabor acido
-limon color amarillo
-harina contiene gluten
-pan contiene gluten
+tomate cantidad poco.
+tomate sabor rico.
+cebolla cantidad mucho.
+cebolla color morado.
+pera cantidad poco.
+pera sabor dulce.
+lechuga cantidad poco.
+lechuga tipo iceberg.
+vino tinto marida carne.
+vino tinto color rojo.
+manzana color rojo.
+manzana sabor acido.
+manzana temporada otoño.
+manzana origen espana.
+manzana cantidad mucho.
+manzana tipo fuji.
+manzana calorias 52.
+platano color amarillo.
+platano sabor dulce.
+platano cantidad mucho.
+platano origen ecuador.
+platano maduro textura blando.
+banana cantidad poco.
+zanahoria color naranja.
+zanahoria sabor dulce.
+zanahoria contiene betacaroteno.
+pimiento color rojo.
+pimiento color verde.
+pimiento picante leve.
+pepino color verde.
+pepino fresco textura crujiente.
+ajo sabor fuerte.
+ajo origen china.
+aceite oliva origen espana.
+aceite oliva sabor suave.
+queso tipo cheddar.
+queso sabor salado.
+leche origen vaca.
+leche tipo descremada.
+pollo tipo pechuga.
+pollo sabor neutro.
+pescado tipo salmon.
+pescado origen oceano.
+vino blanco marida pescado.
+vino rosado color claro.
+cerveza tipo lager.
+cerveza alcohol moderado.
+pan tipo integral.
+pan sabor neutro.
+arroz tipo basmati.
+arroz origen india.
+pasta tipo spaghetti.
+pasta coccion 8min.
+tomate origen invernadero.
+cebolla sabor intenso.
+pera color verde.
+lechuga textura crujiente.
+vino tinto cuerpo pleno.
+vino tinto origen rioja.
+aceituna color verde.
+aceituna sabor salado.
+miel origen abejas.
+miel sabor dulce.
+azucar tipo blanco.
+azucar cantidad mucho.
+sal tipo marina.
+sal uso cocina.
+limon sabor acido.
+limon color amarillo.
+harina contiene gluten.
+pan contiene gluten.
+pan cantidad mucho.
+harina contiene gluten.
 
 
 # Reglas:
-tomate disponible despensa <- tomate cantidad muchos, tomate cantidad pocos
-tomate necesidad comprar <- tomate cantidad pocos
-receta disponible gazpacho <- tomate disponible despensa, cebolla cantidad muchos
+tomate disponible despensa <- tomate cantidad mucho, tomate cantidad poco
+tomate necesidad comprar <- tomate cantidad poco
+receta disponible gazpacho <- tomate disponible despensa, cebolla cantidad mucho
 receta disponible ensalada <- lechuga tipo iceberg
-receta disponible tortilla <- huevo cantidad muchos, patata disponible despensa
-receta disponible pastel <- harina cantidad mucha, huevo cantidad muchos, lecha cantidad mucha
-receta no_apta veganos <- receta contiene carne, receta contiene lácteos
+receta disponible tortilla <- huevo cantidad mucho, patata disponible despensa
+receta disponible pastel <- harina cantidad mucha, huevo cantidad mucho, lecha cantidad mucha
+receta no_apta veganos <- receta contiene carne, receta contiene lácteo
 receta no_apta celíacos <- receta contiene gluten
-receta no_apta intolerantes_lactosa <- receta contiene lácteos
+receta no_apta intolerantes_lactosa <- receta contiene lácteo
 receta no_apta hipertensión <- receta contiene sal
 receta no_apta diabéticos <- receta contiene azúcar
 receta no_apta vegetarianos <- receta contiene carne, receta contiene pescado
 receta contiene proteína_animal <- receta contiene huevo, receta contiene pollo, receta contiene pescado
 receta contiene vitamina_C <- receta contiene naranja
-receta contiene gluten <- receta contiene harina
+receta contiene pan <- pan cantidad mucho 
 receta contiene gluten <- receta contiene pan
+pan contiene harina <- pan cantidad mucho
