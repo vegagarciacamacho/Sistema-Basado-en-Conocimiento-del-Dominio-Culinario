@@ -59,7 +59,7 @@ pan sabor neutro.
 arroz tipo basmati.
 arroz origen india.
 pasta tipo spaghetti.
-pasta coccion 8min.
+pasta coccion 8_min.
 tomate origen invernadero.
 cebolla sabor intenso.
 pera color verde.
