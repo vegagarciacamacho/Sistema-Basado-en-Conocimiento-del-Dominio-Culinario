@@ -86,6 +86,48 @@ aceituna es ingrediente.
 aceituna color verde.
 aceituna sabor salado.
 
+nata es ingrediente.
+nata contiene lácteos.
+nata tipo para_cocinar.
+
+espaguetis es ingrediente.
+espaguetis contiene gluten.
+espaguetis tipo pasta.
+
+lentejas es ingrediente.
+lentejas tiene hierro.
+
+quinoa es ingrediente.
+
+pimiento_verde es ingrediente.
+pimiento_verde tipo pimineto.
+pimiento_verde color verde.
+
+pimiento_rojo es ingrediente.
+pimiento_rojo tipo pimiento.
+pimiento_rojo color rojo.
+
+miel es ingrediente.
+miel contiene azúcar.
+miel color amarillo.
+
+patata es ingrediente.
+
+hojaldre es ingrediente.
+hojaldre contiene gluten.
+
+brocoli es ingrediente.
+brocoli tipo verdura.
+
+queso_rallado es ingrediente.
+queso_rallado tipo rallado.
+queso_rallado contiene lácteos.
+
+vinagre es ingrediente.
+vinagre sabor ácido.
+
+garbanzo es ingrediente.
+
 # --------------------------------------------------
 # SECCIÓN 2: GESTIÓN DE DESPENSA 
 # --------------------------------------------------
@@ -102,16 +144,29 @@ salmón hay 350.
 azúcar hay 600.
 sal hay 10000.
 aceituna hay 50.
+espaguetis hay 500.
+lentejas hay 1000.
+quinoa hay 350.
+brocoli hay 0.
+queso_rallado hay 200.
+garbanzo hay 500.
 
 # Ingredientes medidos en unidades
 huevo hay 12.
 pan hay 2.
 zanahoria hay 50.
 cebolla hay 100.
+pimiento_verde hay 3.
+pimiento_rojo hay 5.
+patata hay 20.
+hojaldre hay 2.
 
 # Ingredientes medidos en miliLitros (mL)
 aceite_oliva hay 600.
 leche hay 5000.
+nata hay 325.
+miel hay 250.
+vinagre hay 600.
 
 X disponible_si true <- X es ingrediente, X hay Y. [Y > 0]
 X disponible_si false <- X es ingrediente, X hay Y. [Y = 0]
@@ -194,9 +249,6 @@ ingrediente011 necesita 200. # mL
 espaguetis_con_salmon contiene ingrediente013.
 ingrediente013 es salmón.
 ingrediente013 necesita 200. # gramos
-
-espaguetis_con_salmon contiene ingrediente014.
-ingrediente014 es albahaca.
 
 espaguetis_con_salmon raciones 2.
 espaguetis_con_salmon coste bajo.
