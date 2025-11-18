@@ -111,34 +111,8 @@ def consultar(entrada: str, base_conocimiento: list[Tripleta], hechos_deducidos:
         if tiene_variables:
             resultados = []
             for hecho in base_total_hechos:
-                asignacion = {}
-                ok = True
-
-                campos_consulta = [consulta_tripleta.sujeto, consulta_tripleta.predicado, consulta_tripleta.objeto]
-                campos_hecho = [hecho.sujeto, hecho.predicado, hecho.objeto]
-
-                for c_val, h_val in zip(campos_consulta, campos_hecho):
-                    if not c_val:
-                        # campo vacío en la consulta: no coincide
-                        ok = False
-                        break
-
-                    if c_val[0].isupper():
-                        var = c_val
-                        # consistencia de la variable si aparece repetida
-                        if var in asignacion:
-                            if asignacion[var] != h_val:
-                                ok = False
-                                break
-                        else:
-                            asignacion[var] = h_val
-                    else:
-                        # debe coincidir exactamente
-                        if c_val != h_val:
-                            ok = False
-                            break
-
-                if ok and asignacion:
+                asignacion = unificar(consulta_tripleta, hecho)
+                if asignacion:
                     resultados.append(asignacion)
 
             if resultados:
@@ -254,30 +228,95 @@ def debug(hechos: list[Tripleta], hechos_deducidos: list[Tripleta], reglas: list
     
     print("=" * 25 + "\n")
 
-# Encadenamiento hacia atrás    
-def razona(consulta: Tripleta, hechos: list[Tripleta], reglas: list[Regla], 
-           visitados: set = None) -> bool:
+def unificar(consulta: Tripleta, hecho: Tripleta) -> dict:
+    """
+    Unifica dos tripletas (consulta y hecho), devolviendo un diccionario con las asignaciones
+    de las variables si es posible, o None si no se puede unificar.
+    """
+    asignacion = {}
+    #print(f"Intentando unificar: consulta={consulta} con hecho={hecho}")
+
+    for c_val, h_val in zip([consulta.sujeto, consulta.predicado, consulta.objeto], 
+                             [hecho.sujeto, hecho.predicado, hecho.objeto]):
+        if not c_val:
+            continue  # Si el valor de la consulta es None, no se compara (se omite)
+        
+        if c_val[0].isupper():  # Es una variable
+            if c_val in asignacion:
+                if asignacion[c_val] != h_val:
+                    #print(f"No se puede unificar: la variable {c_val} tiene valores diferentes")
+                    return None  # No se puede unificar, ya que la variable tiene un valor diferente
+            else:
+                asignacion[c_val] = h_val
+                #print(f"Se ha unificado: {c_val} = {h_val}")
+        else:
+            # Comparación directa si no es una variable
+            if c_val != h_val:
+                #print(f"No se puede unificar: {c_val} != {h_val}")
+                return None  # No se puede unificar, ya que los valores no coinciden
+    
+    #print(f"Unificación exitosa: {asignacion}")
+    return asignacion
+
+def razona(consulta: Tripleta, hechos: list[Tripleta], reglas: list[Regla], visitados: set = None) -> bool:
     """
     Aplica encadenamiento hacia atrás para deducir si la consulta es derivable.
+    Primero verifica si el consecuente está en los hechos. Si no, intenta unificar los antecedentes.
     """
     if visitados is None:
         visitados = set()
-    
-    # Evitar ciclos infinitos
+
+    # Evitar ciclos infinitos (en caso de que la consulta se repita en las recursiones)
     consulta_tuple = (consulta.sujeto, consulta.predicado, consulta.objeto)
     if consulta_tuple in visitados:
         return False
     visitados.add(consulta_tuple)
-    
-    # 1. Verificar si está directamente en los hechos
+
+    #print(f"\nIntentando deducir: {consulta}")
+
+    # 1. Verificar si el consecuente de alguna regla ya está en los hechos
     if consulta in hechos:
+        #print(f"Consulta encontrada directamente en los hechos: {consulta}")
         return True
-    
+
     # 2. Buscar reglas cuyo consecuente coincida con la consulta
     for regla in reglas:
-        if regla.consecuente == consulta:
-            # Verificar si todos los antecedentes se pueden demostrar
-            if all(razona(ant, hechos, reglas, visitados) for ant in regla.antecedentes):
-                return True
-    
+        #print(f"Verificando regla: {regla.consecuente} <- {regla.antecedentes}")
+        
+        # Intentamos unificar el consecuente de la regla con la consulta
+        asignacion = unificar(regla.consecuente, consulta)
+        if asignacion:
+            #print(f"El consecuente se ha unificado con la consulta: {asignacion}")
+            
+            # 3. Verificar si todos los antecedentes de la regla se pueden demostrar
+            for antecedente in regla.antecedentes:
+                #print(f"Verificando antecedente: {antecedente}")
+                
+                # Primero, verificar si el antecedente ya está en los hechos
+                if antecedente in hechos:
+                    print(f"Antecedente {antecedente} encontrado en hechos.")
+                else:
+                    # Si no está en los hechos, intentar unificarlo con los hechos disponibles
+                    unificado = False
+                    for hecho in hechos:
+                        asignacion = unificar(antecedente, hecho)
+                        if asignacion:
+                            # Si la unificación es exitosa, crear una nueva consulta unificada
+                            antecedente_unificado = Tripleta(
+                                sujeto=asignacion.get(antecedente.sujeto, antecedente.sujeto),
+                                predicado=asignacion.get(antecedente.predicado, antecedente.predicado),
+                                objeto=asignacion.get(antecedente.objeto, antecedente.objeto)
+                            )
+                            #print(f"Antecedente unificado: {antecedente_unificado}")
+                            if razona(antecedente_unificado, hechos, reglas, visitados):
+                                unificado = True
+                                break
+                    
+                    if not unificado:
+                        #print(f"No se pudo unificar el antecedente {antecedente}.")
+                        return False  # No se puede demostrar el antecedente
+
+            #print(f"Todos los antecedentes demostrados. Se puede deducir: {consulta}")
+            return True
+        
     return False
