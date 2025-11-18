@@ -112,7 +112,7 @@ class ParserSBC:
         )
         
         # Parser completo para líneas de archivo (regla, afirmación o tripleta sola)
-        self.linea_archivo = self.regla | self.afirmacion | self.tripleta
+        self.linea_archivo = (self.regla | self.afirmacion | self.tripleta) + Optional(self.comentario)
     
     def parsear_tripleta(self, texto: str) -> Tripleta:
         """

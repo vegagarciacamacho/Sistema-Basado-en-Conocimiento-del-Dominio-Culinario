@@ -37,13 +37,13 @@
 #     ignoran durante el procesamiento.
 # =============================================================================
 
-import warnings
 from pathlib import Path
 from typing import Iterator, Iterable
 from sbc.clases import Tripleta, Sustitucion, Regla, Extension
 from pyparsing import ParseException
 
 from sbc.parserSBC import _parser
+from sbc.manejo_errores import advertir_error_sintaxis, advertir_error_general
 
 def cargar(ruta_archivo: str | Path) -> tuple[list[Tripleta], list[Regla]]:
     """
@@ -55,7 +55,6 @@ def cargar(ruta_archivo: str | Path) -> tuple[list[Tripleta], list[Regla]]:
     Returns:
         tuple[list[Tripleta], list[Regla]]: Tupla con listas de hechos y reglas.
     """
-    # Separar entre reglas y hechos
     hechos = []
     reglas = []
 
@@ -76,16 +75,10 @@ def cargar(ruta_archivo: str | Path) -> tuple[list[Tripleta], list[Regla]]:
                     hechos.append(contenido)
                     
             except ParseException as e:
-                warnings.warn(
-                    f"Línea {num_linea}: No se pudo analizar '{linea}'. "
-                    f"Error en columna {e.column}: {e.msg}",
-                    RuntimeWarning
-                )
+                advertir_error_sintaxis(num_linea, linea, e.column, e.msg)
+
             except Exception as e:
-                warnings.warn(
-                    f"Línea {num_linea}: Error inesperado al procesar '{linea}': {e}",
-                    RuntimeWarning
-                )
+                advertir_error_general(num_linea, linea, str(e))
 
     return hechos, reglas
 
