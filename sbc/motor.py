@@ -258,19 +258,11 @@ def unificar(consulta: Tripleta, hecho: Tripleta) -> dict:
     #print(f"Unificación exitosa: {asignacion}")
     return asignacion
 
-def razona(consulta: Tripleta, hechos: list[Tripleta], reglas: list[Regla], visitados: set = None) -> bool:
+def razona(consulta: Tripleta, hechos: list[Tripleta], reglas: list[Regla]) -> bool:
     """
     Aplica encadenamiento hacia atrás para deducir si la consulta es derivable.
     Primero verifica si el consecuente está en los hechos. Si no, intenta unificar los antecedentes.
     """
-    if visitados is None:
-        visitados = set()
-
-    # Evitar ciclos infinitos (en caso de que la consulta se repita en las recursiones)
-    consulta_tuple = (consulta.sujeto, consulta.predicado, consulta.objeto)
-    if consulta_tuple in visitados:
-        return False
-    visitados.add(consulta_tuple)
 
     #print(f"\nIntentando deducir: {consulta}")
 
@@ -286,29 +278,26 @@ def razona(consulta: Tripleta, hechos: list[Tripleta], reglas: list[Regla], visi
         # Intentamos unificar el consecuente de la regla con la consulta
         asignacion = unificar(regla.consecuente, consulta)
         if asignacion:
-            #print(f"El consecuente se ha unificado con la consulta: {asignacion}")
+            print(f"El consecuente se ha unificado con la consulta: {asignacion}")
             
             # 3. Verificar si todos los antecedentes de la regla se pueden demostrar
             for antecedente in regla.antecedentes:
                 #print(f"Verificando antecedente: {antecedente}")
-                
+                antecedente_aplicado = aplicar_asignacion(antecedente, asignacion)
                 # Primero, verificar si el antecedente ya está en los hechos
-                if antecedente in hechos:
-                    print(f"Antecedente {antecedente} encontrado en hechos.")
+                if antecedente_aplicado in hechos:
+                    print(f"Antecedente {antecedente_aplicado} encontrado en hechos.")
                 else:
                     # Si no está en los hechos, intentar unificarlo con los hechos disponibles
                     unificado = False
                     for hecho in hechos:
-                        asignacion = unificar(antecedente, hecho)
-                        if asignacion:
+                        asignacion_antecedente = unificar(antecedente_aplicado, hecho)
+                        if asignacion_antecedente:
+                            asignacion.update(asignacion_antecedente)  # Actualizar la asignación global
                             # Si la unificación es exitosa, crear una nueva consulta unificada
-                            antecedente_unificado = Tripleta(
-                                sujeto=asignacion.get(antecedente.sujeto, antecedente.sujeto),
-                                predicado=asignacion.get(antecedente.predicado, antecedente.predicado),
-                                objeto=asignacion.get(antecedente.objeto, antecedente.objeto)
-                            )
-                            #print(f"Antecedente unificado: {antecedente_unificado}")
-                            if razona(antecedente_unificado, hechos, reglas, visitados):
+                            antecedente_unificado = aplicar_asignacion(antecedente_aplicado,asignacion_antecedente)
+                            print(f"Antecedente unificado: {antecedente_unificado}")
+                            if razona(antecedente_unificado, hechos, reglas):
                                 unificado = True
                                 break
                     
@@ -320,3 +309,11 @@ def razona(consulta: Tripleta, hechos: list[Tripleta], reglas: list[Regla], visi
             return True
         
     return False
+
+def aplicar_asignacion(antecedente: Tripleta, asignacion: dict) -> Tripleta:
+    """Aplica la asignación a un antecedente para sustituir las variables por los valores asignados."""
+    return Tripleta(
+        sujeto=asignacion.get(antecedente.sujeto, antecedente.sujeto),
+        predicado=asignacion.get(antecedente.predicado, antecedente.predicado),
+        objeto=asignacion.get(antecedente.objeto, antecedente.objeto)
+    )
