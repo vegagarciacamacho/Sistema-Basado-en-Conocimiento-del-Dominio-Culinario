@@ -12,6 +12,46 @@ from dataclasses import dataclass
 from typing import Iterator, Any
 
 @dataclass
+class LogicaDifusa:
+    """Representa una lógica difusa con su valor de pertenencia."""
+    valor: float
+
+    def __init__(self, valor: float):
+        if not (0.0 <= valor <= 1.0):
+            raise ValueError("El valor de pertenencia debe estar entre 0.0 y 1.0")
+        self.valor = valor
+
+    def minimo(self, otro: 'LogicaDifusa') -> 'LogicaDifusa':
+        """Devuelve el mínimo de los dos valores difusos."""
+        return LogicaDifusa(min(self.valor, otro.valor))
+
+    def maximo(self, otro: 'LogicaDifusa') -> 'LogicaDifusa':
+        """Devuelve el máximo de los dos valores difusos."""
+        return LogicaDifusa(max(self.valor, otro.valor))
+
+    def producto(self, otro: 'LogicaDifusa') -> 'LogicaDifusa':
+        """Devuelve el producto de los dos valores difusos."""
+        return LogicaDifusa(self.valor * otro.valor)
+
+    def suma(self, otro: 'LogicaDifusa') -> 'LogicaDifusa':
+        """Devuelve la suma de los dos valores difusos, limitada a 1.0."""
+        return LogicaDifusa(min(self.valor + otro.valor, 1.0))
+
+    def __repr__(self) -> str:
+        return f"LogicaDifusa({self.valor})"
+
+@dataclass
+class Extension:
+    """Representa las extensiones opcionales de una regla o afirmación."""
+    difusa: LogicaDifusa | None = None # Usamos LogicaDifusa en lugar de un valor float (es opcional)
+    precedencia: int | None = None
+    restricciones: list[tuple[str, str, int]] = None
+    
+    def __post_init__(self):
+        if self.restricciones is None:
+            self.restricciones = []
+
+@dataclass
 class Tripleta:
     """
     Representa una tripleta (sujeto, predicado, objeto).
@@ -46,46 +86,6 @@ class Sustitucion(dict):
 
     def __repr__(self) -> str:
         return f"Sustitucion({dict(self)!r})"
-
-@dataclass
-class Extension:
-    """Representa las extensiones opcionales de una regla o afirmación."""
-    difusa: LogicaDifusa | None = None # Usamos LogicaDifusa en lugar de un valor float (es opcional)
-    precedencia: int | None = None
-    restricciones: list[tuple[str, str, int]] = None
-    
-    def __post_init__(self):
-        if self.restricciones is None:
-            self.restricciones = []
-
-@dataclass
-class LogicaDifusa:
-    """Representa una lógica difusa con su valor de pertenencia."""
-    valor: float
-
-    def __init__(self, valor: float):
-        if not (0.0 <= valor <= 1.0):
-            raise ValueError("El valor de pertenencia debe estar entre 0.0 y 1.0")
-        self.valor = valor
-
-    def minimo(self, otro: 'LogicaDifusa') -> 'LogicaDifusa':
-        """Devuelve el mínimo de los dos valores difusos."""
-        return LogicaDifusa(min(self.valor, otro.valor))
-
-    def maximo(self, otro: 'LogicaDifusa') -> 'LogicaDifusa':
-        """Devuelve el máximo de los dos valores difusos."""
-        return LogicaDifusa(max(self.valor, otro.valor))
-
-    def producto(self, otro: 'LogicaDifusa') -> 'LogicaDifusa':
-        """Devuelve el producto de los dos valores difusos."""
-        return LogicaDifusa(self.valor * otro.valor)
-
-    def suma(self, otro: 'LogicaDifusa') -> 'LogicaDifusa':
-        """Devuelve la suma de los dos valores difusos, limitada a 1.0."""
-        return LogicaDifusa(min(self.valor + otro.valor, 1.0))
-
-    def __repr__(self) -> str:
-        return f"LogicaDifusa({self.valor})"
 
 @dataclass
 class Regla:
