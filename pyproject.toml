@@ -1,16 +1,13 @@
+[build-system]
+requires = ["setuptools>=61", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "fdi-sbc-2504"
 version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
-requires-python = ">=3.12"
-dependencies = [
-    "click>=8.3.0",
-    "dataclasses>=0.8",
-    "loguru>=0.7.3",
-    "pathlib>=1.0.1",
-    "prompt-toolkit>=3.0.52",
-    "pyparsing>=3.2.5",
-    "rich>=14.2.0",
-    "typing>=3.10.0.0",
-]
+description = "Sistema basado en conocimiento"
+requires-python = ">=3.10"
+
+[tool.setuptools]
+packages = ["sbc"]
+
