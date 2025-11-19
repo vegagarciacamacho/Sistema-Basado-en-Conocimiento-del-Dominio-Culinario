@@ -168,7 +168,7 @@ nata hay 325.
 miel hay 250.
 vinagre hay 600.
 
-X disponible_si true <- X es Y, Y es ingrediente, Y hay Z [Z > 0]
+X disponible_si true <- X es Y, Y es ingrediente, Y hay Z. [Z > 0]
 X disponible_si false <- X es ingrediente, X hay Y. [Y = 0]
 X lista_compra sí <- X es ingrediente, X disponible_si false.
 
@@ -466,3 +466,5 @@ Bebida acompaña_receta true <- Y es receta, Y contiene X, Bebida marida X, Bebi
 # --------------------------------------------------
 # SECCIÓN 5: RESTRICCIONES DIETÉTICAS Y ALÉRGENOS
 # --------------------------------------------------
+
+
