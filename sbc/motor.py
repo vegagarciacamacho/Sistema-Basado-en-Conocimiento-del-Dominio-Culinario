@@ -335,7 +335,9 @@ def razona(consulta: Tripleta, hechos: list[Tripleta], reglas: list[Regla]) -> b
                     
                     if not unificado:
                         #print(f"No se pudo unificar el antecedente {antecedente}.")
-                        return False  # No se puede demostrar el antecedente
+                        # Si no puede unificarse con ningún hecho, intentamos con las reglas
+                        if not razona(antecedente_aplicado, hechos, reglas):
+                            return False  # No se puede demostrar el antecedente
 
             #print(f"Todos los antecedentes demostrados. Se puede deducir: {consulta}")
             return True
