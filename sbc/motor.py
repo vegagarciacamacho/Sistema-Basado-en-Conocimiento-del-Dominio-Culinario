@@ -179,24 +179,56 @@ def revocar(entrada: str, base_conocimiento: list[Tripleta]) -> bool:
 # Encadenamiento hacia adelante
 def descubrir(hechos: list[Tripleta], reglas: list[Regla]) -> list[Tripleta]:
     """
-    Aplica encadenamiento hacia adelante sobre las reglas.
-    Retorna los nuevos hechos deducidos sin modificar la base original.
+    Encadenamiento hacia adelante con soporte de variables.
+    Aplica reglas mientras genere nuevos hechos. Devuelve solo los deducidos.
     """
-    hechos_deducidos = []
     hechos_totales = hechos.copy()
+    hechos_deducidos = []
 
-    nuevos = True
-    while nuevos:
-        nuevos = False
+    cambio = True
+    while cambio:
+        cambio = False
+
         for regla in reglas:
-            # Verificar si todos los antecedentes están en los hechos
-            if all(ant in hechos_totales for ant in regla.antecedentes):
-                # Si el consecuente no está ya deducido, lo añadimos
-                if regla.consecuente not in hechos_totales:
-                    hechos_deducidos.append(regla.consecuente)
-                    hechos_totales.append(regla.consecuente)
-                    nuevos = True
-                    
+            # Necesitamos encontrar TODAS las asignaciones válidas para los antecedentes
+            asignaciones_posibles = [{}]  # empezamos con asignación vacía
+
+            for antecedente in regla.antecedentes:
+                nuevas_asignaciones = []
+
+                for asignacion_actual in asignaciones_posibles:
+                    antecedente_inst = aplicar_asignacion(antecedente, asignacion_actual)
+
+                    # Intentar unificación con todos los hechos
+                    for hecho in hechos_totales:
+                        asignacion_unif = unificar(antecedente_inst, hecho)
+
+                        if asignacion_unif is not None:
+                            # combinación de ambas asignaciones
+                            asignacion_combinada = asignacion_actual.copy()
+
+                            conflict = False
+                            for var, val in asignacion_unif.items():
+                                if var in asignacion_combinada and asignacion_combinada[var] != val:
+                                    conflict = True
+                                    break
+                                asignacion_combinada[var] = val
+
+                            if not conflict:
+                                nuevas_asignaciones.append(asignacion_combinada)
+
+                asignaciones_posibles = nuevas_asignaciones
+
+            # Si no hay asignaciones completas válidas, no se puede disparar la regla
+            for asignacion_final in asignaciones_posibles:
+                consecuente_inst = aplicar_asignacion(regla.consecuente, asignacion_final)
+
+                # Solo añadir si es nuevo
+                if consecuente_inst not in hechos_totales:
+                    hechos_totales.append(consecuente_inst)
+                    hechos_deducidos.append(consecuente_inst)
+                    cambio = True
+
     return hechos_deducidos
 
 def debug(hechos: list[Tripleta], hechos_deducidos: list[Tripleta], reglas: list[Regla]):
