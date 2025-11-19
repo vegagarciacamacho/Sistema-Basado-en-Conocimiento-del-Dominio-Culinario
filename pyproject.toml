@@ -7,6 +7,15 @@ name = "fdi-sbc-2504"
 version = "0.1.0"
 description = "Sistema basado en conocimiento"
 requires-python = ">=3.10"
+dependencies = [
+    "click>=8.3.1",
+    "loguru>=0.7.3",
+    "pathlib>=1.0.1",
+    "prompt-toolkit>=3.0.52",
+    "pyparsing>=3.2.5",
+    "pytest>=9.0.1",
+    "rich>=14.2.0",
+]
 
 [tool.setuptools]
 packages = ["sbc"]
