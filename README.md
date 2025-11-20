@@ -26,8 +26,15 @@ Sistema experto desarrollado para **Sistemas Basados en Conocimiento (SBC) 2025/
 uv run -m sbc.cli
 
 # Comandos principales
-"""TODO: por completar"""
 ```
+- cargar!: recarga la base de conocimiento desde el archivo bc.txt. 
+- descubrir!: aplica el encadenamiento hacia adelante utilizando las reglas de la base de conocimiento para deducir nuevos hechos que no estén ya en la BC.
+- razona si <consulta>?: permite realizar consultas para saber si un hecho o propiedad derivada de la base de conocimiento es válida.
+- <consulta>?: realiza consultas simples sobre la base de conocimiento.
+- <hecho>.: añade un nuevo hecho a la base de conocimiento.
+- no <hecho>: elimina un hecho de labase de conocimiento.
+- debug!: muestra todos los hechos y reglas cargados en la memoria del sistema, incluidos los hechos deducidos.
+- salir o exit: finaliza la sesión.
 
 ### Estructura
 
