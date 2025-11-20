@@ -24,9 +24,9 @@ Sistema experto desarrollado para **Sistemas Basados en Conocimiento (SBC) 2025/
 ```bash
 # Iniciar el sistema
 uv run -m sbc.cli
-
-# Comandos principales
 ```
+
+## Comandos principales
 - cargar!: recarga la base de conocimiento desde el archivo bc.txt. 
 - descubrir!: aplica el encadenamiento hacia adelante utilizando las reglas de la base de conocimiento para deducir nuevos hechos que no estén ya en la BC.
 - razona si <consulta>?: permite realizar consultas para saber si un hecho o propiedad derivada de la base de conocimiento es válida.
