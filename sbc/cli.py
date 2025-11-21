@@ -1,115 +1,113 @@
 # sbc/cli.py
-# Descripción: Interfaz de línea de comandos (CLI) basada en click que carga una
-#              base de conocimiento desde el archivo kb/bc.txt y permite realizar
-#              consultas interactivas en forma de tripletas (sujeto predicado objeto).
+# Descripción: Interfaz de línea de comandos simplificada
 
 import click
 from pathlib import Path
-from sbc.motor import cargar, consultar, descubrir, añadir, revocar, debug, razona
-from sbc.clases import Tripleta
+from pyparsing import ParseException
+
+from sbc.motor import (
+    cargar, descubrir, razona,
+    ejecutar_consulta, añadir_hecho, revocar_hecho, mostrar_debug
+)
+from sbc.parserSBC import _parser
+
 
 @click.command()
 def cli():
     """Comando para cargar y consultar la base de conocimiento."""
-    archivo_base_conocimiento = Path(__file__).parent.parent / 'kb' / 'bc.txt'
+    archivo_bc = Path(__file__).parent.parent / 'kb' / 'bc.txt'
 
     try:
-        # Cargar base de conocimiento como listas
-        hechos, reglas = cargar(archivo_base_conocimiento)
-        hechos_deducidos = []  # se calcularán cuando el usuario pida 'descubrir!'
+        # Cargar base de conocimiento
+        hechos, reglas = cargar(archivo_bc)
+        hechos_deducidos = []
 
         print("\nBase de conocimiento cargada correctamente.\n")
     
-        # Comandos
-        print("Comandos disponibles:")
-        print('  salir | exit | s - Salir de la sesión interactiva.')
-        print("  ? Consulta un hecho. Ejemplo: 'tomate color rojo?'")
-        print("  . Añadir o eliminar hechos. Ejemplo: 'tomate color rojo.' o 'no tomate color rojo.'\n")
-        
-        # Comandos especiales
-        print("Comandos especiales:")
-        print("  cargar! - Recargar la base de conocimiento.")
-        print("  descubrir! - Aplicar encadenamiento hacia adelante para deducir nuevos hechos.\n")
-        print("  razona si - Verificar si una consulta puede ser deducida.")
-        print("-" * 50)
+        # Mostrar comandos disponibles
+        _mostrar_ayuda()
 
         # Bucle interactivo
         while True:
             try:
-                usuario = input("Entrada: ").strip()
+                entrada = input("Entrada: ").strip()
             except (KeyboardInterrupt, EOFError):
                 print("\n\nSesión finalizada.")
                 break
 
-            if not usuario:
+            if not entrada:
                 continue
 
-            match usuario:
-                
-                # Cargar
-                case "cargar!":
-                    hechos, reglas = cargar(archivo_base_conocimiento)
-                    hechos_deducidos = []
-                    print("Base de conocimiento recargada.\n")
-
-                # Descubrir
-                case "descubrir!":
-                    hechos_deducidos = descubrir(hechos, reglas)
-                    print(f"Descubrimiento completado. {len(hechos_deducidos)} hechos deducidos.\n")
-                
-                # Mostrar toda la base de conocimiento
-                case "debug!":
-                    debug(hechos, hechos_deducidos, reglas)
-
-                # Añadir o eliminar hecho
-                case _ if usuario.endswith('.'):
-
-                    # Revocar hecho
-                    if usuario.lower().startswith("no "):
-                        if revocar(usuario, hechos):
-                            print("Hecho revocado de la memoria de trabajo.\n")
-                        else:
-                            print("Hecho no encontrado en la memoria de trabajo.\n")
-
-                    # Añadir hecho
+            # Procesar comandos
+            if entrada in ("salir", "exit", "s"):
+                print("Sesión finalizada.")
+                break
+            
+            elif entrada == "cargar!":
+                hechos, reglas = cargar(archivo_bc)
+                hechos_deducidos = []
+                print("Base de conocimiento recargada.\n")
+            
+            elif entrada == "descubrir!":
+                hechos_deducidos = descubrir(hechos, reglas)
+                print(f"Descubrimiento completado. "
+                      f"{len(hechos_deducidos)} hechos deducidos.\n")
+            
+            elif entrada == "debug!":
+                mostrar_debug(hechos, hechos_deducidos, reglas)
+            
+            elif entrada.endswith('.'):
+                # Añadir o revocar hecho
+                if entrada.lower().startswith("no "):
+                    if revocar_hecho(entrada, hechos):
+                        print("Hecho revocado de la memoria de trabajo.\n")
                     else:
-                        añadir(usuario, hechos)
-
-                # Razonar hacia atrás
-                case _ if usuario.startswith("razona si"):
-                    from sbc.parserSBC import _parser
-                    from pyparsing import ParseException
+                        print("Hecho no encontrado en la memoria de trabajo.\n")
+                else:
+                    añadir_hecho(entrada, hechos)
+            
+            elif entrada.startswith("razona si"):
+                # Razonamiento hacia atrás
+                try:
+                    consulta_tripleta, _ = _parser.parsear_consulta(entrada)
                     
-                    try:
-                        # Usar el parser para extraer la consulta
-                        consulta_tripleta, _ = _parser.parsear_consulta(usuario)
+                    if razona(consulta_tripleta, hechos, reglas):
+                        print(f"Sí, se puede deducir: {consulta_tripleta}\n")
+                    else:
+                        print(f"No se puede deducir: {consulta_tripleta}\n")
                         
-                        # Llamar a la función de razonamiento
-                        if razona(consulta_tripleta, hechos, reglas):
-                            print(f"Sí, se puede deducir: {consulta_tripleta}\n")
-                        else:
-                            print(f"No se puede deducir: {consulta_tripleta}\n")
-                    except ParseException as e:
-                        print(f"Error de sintaxis: {e.msg}\n")
-                    except Exception as e:
-                        print(f"Error al procesar razonamiento: {e}\n")
-
-                # Consultar
-                case _ if usuario.endswith('?'):
-                    consultar(usuario, hechos, hechos_deducidos)
-
-                # Comando para salir
-                case "salir" | "exit" | "s":
-                    print("Sesión finalizada.")
-                    break  # Salir del bucle
-
-                case _:
-                    print("Entrada no reconocida. Use '?' para consultas, '.' para hechos, 'cargar!' o 'descubrir!'.\n")
+                except ParseException as e:
+                    print(f"Error de sintaxis: {e.msg}\n")
+                except Exception as e:
+                    print(f"Error al procesar razonamiento: {e}\n")
+            
+            elif entrada.endswith('?'):
+                # Consulta
+                ejecutar_consulta(entrada, hechos, hechos_deducidos)
+            
+            else:
+                print("Entrada no reconocida. Use '?' para consultas, "
+                      "'.' para hechos, o comandos especiales.\n")
 
     except FileNotFoundError:
-        print(f"Error: El archivo {archivo_base_conocimiento} no se encuentra.")
+        print(f"Error: El archivo {archivo_bc} no se encuentra.")
     except Exception as e:
         print(f"Ha ocurrido un error: {e}")
+
+
+def _mostrar_ayuda():
+    """Muestra la ayuda de comandos disponibles."""
+    print("Comandos disponibles:")
+    print('  salir | exit | s       - Salir de la sesión')
+    print("  ?                      - Consulta. Ej: 'tomate tipo X?'")
+    print("  .                      - Añadir/eliminar. Ej: 'tomate color rojo.'\n")
+    
+    print("Comandos especiales:")
+    print("  cargar!                - Recargar base de conocimiento")
+    print("  descubrir!             - Encadenamiento hacia adelante")
+    print("  razona si ... ?        - Encadenamiento hacia atrás")
+    print("  debug!                 - Mostrar toda la BC en memoria")
+    print("-" * 50 + "\n")
 
 
 if __name__ == "__main__":
