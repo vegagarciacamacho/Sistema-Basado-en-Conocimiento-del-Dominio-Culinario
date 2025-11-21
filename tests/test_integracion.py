@@ -1,11 +1,12 @@
 import os
 import io
+import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
-import pytest
 
-from sbc.motor import cargar, consultar, añadir, revocar, descubrir, razona
+from sbc.motor import cargar, ejecutar_consulta, añadir_hecho, revocar_hecho, descubrir, razona
 from sbc.clases import Tripleta
+
 
 SMALL_KB = """\
 # --------------------------------------------------
@@ -55,55 +56,70 @@ ingrediente003 es queso_cheddar.
 
 
 def _capture(func, *args, **kwargs) -> str:
+    """Captura la salida por pantalla de una función."""
     buf = io.StringIO()
     with redirect_stdout(buf):
         func(*args, **kwargs)
     return buf.getvalue()
 
-@pytest.fixture
-def hechos_reglas(tmp_path):
-    use_full = os.getenv("TEST_USE_FULL_KB") == "1"
-    if use_full:
-        repo_root = Path(__file__).resolve().parents[2]
-        kb_path = repo_root / "kb" / "bc.txt"
-        hechos, reglas = cargar(kb_path)
-    else:
-        kb = tmp_path / "bc_small.txt"
-        kb.write_text(SMALL_KB, encoding="utf-8")
-        hechos, reglas = cargar(kb)
-    return hechos, reglas
 
-def test_consultas_y_modificaciones(hechos_reglas):
-    hechos, reglas = hechos_reglas
+class TestMotor(unittest.TestCase):
 
-    # consulta con variable
-    out = _capture(consultar, "tomate color X?", hechos, [])
-    assert "X = rojo" in out
+    def setUp(self):
+        """Carga hechos y reglas para cada test."""
+        use_full = os.getenv("TEST_USE_FULL_KB") == "1"
+        if use_full:
+            repo_root = Path(__file__).resolve().parents[2]
+            kb_path = repo_root / "kb" / "bc.txt"
+            self.hechos, self.reglas = cargar(kb_path)
+        else:
+            # crear un archivo temporal dentro de tests/
+            temp_path = Path(__file__).parent / "temp_bc_small.txt"
+            temp_path.write_text(SMALL_KB, encoding="utf-8")
+            self.hechos, self.reglas = cargar(temp_path)
 
-    # consulta afirmativa
-    out = _capture(consultar, "tomate color rojo?", hechos, [])
-    assert ("Sí" in out)
+    # --------------------------------------------------
 
-    # añadir y consultar
-    out = _capture(añadir, "pepino color verde.", hechos)
-    assert "Hecho añadido" in out
-    out = _capture(consultar, "pepino color X?", hechos, [])
-    assert "X = verde" in out
+    def test_consultas_y_modificaciones(self):
 
-    # revocar y comprobar ausencia
-    ok = revocar("no pepino color verde.", hechos)
-    assert ok is True
-    out = _capture(consultar, "pepino color X?", hechos, [])
-    assert ("No se encontraron coincidencias" in out) or ("No, no está" in out)
+        # consulta con variable
+        out = _capture(ejecutar_consulta, "tomate color X?", self.hechos, [])
+        self.assertIn("X = rojo", out)
 
-def test_descubrir_y_razona(hechos_reglas):
-    hechos, reglas = hechos_reglas
+        # consulta afirmativa
+        out = _capture(ejecutar_consulta, "tomate color rojo?", self.hechos, [])
+        self.assertTrue("Sí" in out)
 
-    # descubrir (forward chaining)
-    hechos_deducidos = descubrir(hechos, reglas)
-    assert isinstance(hechos_deducidos, list)
+        # añadir y consultar
+        out = _capture(añadir_hecho, "pepino color verde.", self.hechos)
+        self.assertIn("Hecho añadido", out)
 
-    # razona directo para regla concreta (si existe)
-    consulta = Tripleta("tomate", "es_vegetal", "verdadero")
-    # la implementación actual puede requerir la regla concreta; aceptamos True/False
-    assert isinstance(razona(consulta, hechos, reglas), bool)
+        out = _capture(ejecutar_consulta, "pepino color X?", self.hechos, [])
+        self.assertIn("X = verde", out)
+
+        # revocar y comprobar ausencia
+        ok = revocar_hecho("no pepino color verde.", self.hechos)
+        self.assertIs(ok, True)
+
+        out = _capture(ejecutar_consulta, "pepino color X?", self.hechos, [])
+        self.assertTrue(
+            ("No se encontraron coincidencias" in out)
+            or ("No, no está" in out)
+        )
+
+    # --------------------------------------------------
+
+    def test_descubrir_y_razona(self):
+
+        hechos_deducidos = descubrir(self.hechos, self.reglas)
+        self.assertIsInstance(hechos_deducidos, list)
+
+        consulta = Tripleta("tomate", "es_vegetal", "verdadero")
+
+        resultado = razona(consulta, self.hechos, self.reglas)
+        self.assertIsInstance(resultado, bool)
+
+
+# Permite ejecutar este archivo como script
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

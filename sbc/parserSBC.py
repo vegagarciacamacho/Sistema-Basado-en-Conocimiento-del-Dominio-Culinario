@@ -10,7 +10,7 @@
 #              Cada parser convierte cadenas de texto en instancias de las clases
 #              definidas en sbc.clases.py, facilitando la interacción con el motor
 
-from sbc.clases import Tripleta, Regla, Extension
+from sbc.clases import Tripleta, Regla, Extension, Hecho, LogicaDifusa
 from pyparsing import (
     Word, Suppress, restOfLine, Literal, Group, 
     Optional, ZeroOrMore, Regex, nums, oneOf
@@ -53,15 +53,16 @@ class ParserSBC:
         )
         
         # Extensiones opcionales
-        difusa = Regex(r"0\.\d+|1\.0+|1")("difusa") # Valor entre 0 y 1
-        precedencia = Word(nums, exact=3)("precedencia")
+        difusa = Regex(r"0\.\d+|1\.0+")("difusa") # Valor entre 0 y 1
+        precedencia = Word(nums, exact=3)("precedencia") # Entero de 3 dígitos [000-999]
         operador = oneOf("< <= = >= >")
         restriccion = Group(
             self.variable("var") + 
             operador("op") + 
             Word(nums)("valor")
-        )
+        )("restriccion*") # Puede haber múltiples restricciones
         
+        # difusa y precedencia mantienen solo la última ocurrencia si aparecieran repetidos
         opcional = difusa | precedencia | restriccion
         punto_coma = Suppress(Optional(" ") + Literal(";") + Optional(" "))
         
@@ -222,8 +223,9 @@ class ParserSBC:
             return 'regla', regla
             
         elif 'tripleta' in resultado:
-            # Es una afirmación con punto
+            # Es una afirmación con punto y puede tener extensión
             trip = resultado['tripleta'][0]
+            extension = self._parsear_extension(resultado)
             hecho = Tripleta(trip['sujeto'], trip['predicado'], trip['objeto'])
             return 'hecho', hecho
             
@@ -247,7 +249,7 @@ class ParserSBC:
         # Buscar difusa
         if 'difusa' in ext_data:
             try:
-                extension.difusa = float(ext_data['difusa'])
+                extension.difusa = LogicaDifusa(float(ext_data['difusa']))
             except (ValueError, TypeError):
                 pass
         
@@ -258,15 +260,15 @@ class ParserSBC:
             except (ValueError, TypeError):
                 pass
         
-        # Buscar restricciones (puede haber múltiples)
-        for item in ext_data:
-            if isinstance(item, list) and len(item) >= 3:
+        # Restricciones (lista)
+        if 'restriccion' in ext_data:
+            for r in ext_data['restriccion']:
                 try:
-                    var = item['var']
-                    op = item['op']
-                    valor = int(item['valor'])
+                    var = r['var']
+                    op = r['op']
+                    valor = int(r['valor'])
                     extension.restricciones.append((var, op, valor))
-                except (KeyError, ValueError, TypeError):
+                except (ValueError, KeyError, TypeError):
                     pass
         
         return extension if (extension.difusa or extension.precedencia or extension.restricciones) else None

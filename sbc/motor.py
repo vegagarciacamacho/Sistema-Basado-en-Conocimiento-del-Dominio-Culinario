@@ -252,7 +252,6 @@ def ejecutar_consulta(entrada: str, base_conocimiento: list[Tripleta],
             resultados = list(consultar(consulta_tripleta, base_total))
             
             if resultados:
-                print("\nResultados encontrados:")
                 for sust in resultados:
                     if sust:  # Si hay variables asignadas
                         print(f"  {sust}")

@@ -13,7 +13,6 @@ dependencies = [
     "pathlib>=1.0.1",
     "prompt-toolkit>=3.0.52",
     "pyparsing>=3.2.5",
-    "pytest>=9.0.1",
     "rich>=14.2.0",
 ]
 

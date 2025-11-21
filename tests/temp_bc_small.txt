@@ -1,0 +1,43 @@
+# --------------------------------------------------
+# HECHOS BÁSICOS
+# --------------------------------------------------
+
+tomate es ingrediente.
+tomate color rojo.
+tomate hay 500.
+
+cebolla es ingrediente.
+cebolla color morado.
+cebolla hay 100.
+
+queso_cheddar es ingrediente.
+queso_cheddar contiene lacteos.
+queso_cheddar hay 0.
+
+pollo es ingrediente.
+pollo hay 200.
+
+# --------------------------------------------------
+# REGLAS SIMPLES
+# --------------------------------------------------
+
+# Disponible si hay cantidad > 0
+X disponible_si true <- X es ingrediente, X hay Y. [Y > 0]
+X disponible_si false <- X es ingrediente, X hay Y. [Y = 0]
+
+# Lista de compra si no está disponible
+X lista_compra si <- X es ingrediente, X disponible_si false.
+
+# --------------------------------------------------
+# RECETAS
+# --------------------------------------------------
+
+ensalada_simple es receta.
+ensalada_simple contiene ingrediente001.
+ingrediente001 es tomate.
+
+ensalada_simple contiene ingrediente002.
+ingrediente002 es cebolla.
+
+ensalada_simple contiene ingrediente003.
+ingrediente003 es queso_cheddar.

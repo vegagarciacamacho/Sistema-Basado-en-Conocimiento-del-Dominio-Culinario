@@ -107,8 +107,8 @@ class Sustitucion(dict):
     def __repr__(self) -> str:
         if not self:
             return "Sustitucion({})"
-        items = ", ".join(f"{k}={v}" for k, v in self.items())
-        return f"Sustitucion({{{items}}})"
+        items = ", ".join(f"{k} = {v}" for k, v in self.items())
+        return f"{items}"
 
 # Clases para extensiones (para implementar después)
 @dataclass
@@ -143,7 +143,9 @@ class Extension:
         if self.precedencia is not None:
             partes.append(f"{self.precedencia}")
         if self.restricciones:
-            partes.append(f"{self.restricciones}")
+            partes.append(
+                "; ".join(f"{a} {op} {b}" for a, op, b in self.restricciones)
+            )
         return "[" + "; ".join(partes) + "]"
 
 @dataclass
@@ -153,7 +155,7 @@ class Hecho:
     extension: Extension | None = None
     
     def __repr__(self) -> str:
-        return f"{self.tripleta} {self.extension if self.extension else ''}".strip()
+        return f"{self.tripleta}".strip()
 
 @dataclass
 class Regla:
