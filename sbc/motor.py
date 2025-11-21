@@ -88,6 +88,7 @@ def aplicar(regla: Regla, hechos: list[Tripleta]) -> Iterator[Tripleta]:
         yield regla.consecuente.aplicar(sustitucion)
 
 
+
 def razona(objetivo: Tripleta, hechos: list[Tripleta], 
            reglas: list[Regla], visitados: set = None) -> bool:
     """
@@ -132,10 +133,17 @@ def razona(objetivo: Tripleta, hechos: list[Tripleta],
         antecedentes_instanciados = [ant.aplicar(sustitucion) 
                                      for ant in regla.antecedentes]
         
-        # Intentar probar todos los antecedentes recursivamente
-        if all(razona(ant, hechos, reglas, visitados.copy()) 
-               for ant in antecedentes_instanciados):
-            return True  # Todos los antecedentes se probaron
+       # Intentar probar todos los antecedentes recursivamente
+        for antecedente in antecedentes_instanciados:
+            # Comprobar si el antecedente está en los hechos
+            if any(unificar(antecedente, hecho) is not None for hecho in hechos):
+                continue  # El antecedente ya está en los hechos
+
+            # Si no está en los hechos, intentar unificarlo con las reglas
+            if not razona(antecedente, hechos, reglas, visitados.copy()):
+                return False  # No se pudo probar el antecedente
+        
+        return True  # Todos los antecedentes fueron probados exitosamente
     
     return False  # No se pudo probar el objetivo
 

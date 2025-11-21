@@ -54,7 +54,6 @@ ensalada_simple contiene ingrediente003.
 ingrediente003 es queso_cheddar.
 """
 
-
 def _capture(func, *args, **kwargs) -> str:
     """Captura la salida por pantalla de una función."""
     buf = io.StringIO()
@@ -62,21 +61,22 @@ def _capture(func, *args, **kwargs) -> str:
         func(*args, **kwargs)
     return buf.getvalue()
 
-
 class TestMotor(unittest.TestCase):
 
     def setUp(self):
         """Carga hechos y reglas para cada test."""
-        use_full = os.getenv("TEST_USE_FULL_KB") == "1"
-        if use_full:
-            repo_root = Path(__file__).resolve().parents[2]
-            kb_path = repo_root / "kb" / "bc.txt"
-            self.hechos, self.reglas = cargar(kb_path)
+        #Comprobar variable de entorno para usar KB completa o pequeña
+        self.use_full = os.getenv("TEST_USE_FULL_KB") == "1"
+        if self.use_full:
+            # Si la variable de entorno TEST_USE_FULL_KB está configurada a "1", se usa la base de datos completa
+            archivo_bc = Path(__file__).parent.parent / 'kb' / 'bc.txt'  # Construye la ruta completa al archivo bc.txt en la carpeta "kb"
+            self.hechos, self.reglas = cargar(archivo_bc)  # Llama a la función cargar para cargar hechos y reglas desde el archivo bc.txt
         else:
             # crear un archivo temporal dentro de tests/
-            temp_path = Path(__file__).parent / "temp_bc_small.txt"
-            temp_path.write_text(SMALL_KB, encoding="utf-8")
-            self.hechos, self.reglas = cargar(temp_path)
+            temp_path = Path(__file__).parent / "temp_bc_small.txt"  # Construye la ruta del archivo temporal en el directorio de tests
+            temp_path.write_text(SMALL_KB, encoding="utf-8")  # Escribe la base de datos pequeña en el archivo temporal
+            self.hechos, self.reglas = cargar(temp_path)  # Carga los hechos y reglas desde este archivo temporal
+
 
     # --------------------------------------------------
 
@@ -118,6 +118,42 @@ class TestMotor(unittest.TestCase):
 
         resultado = razona(consulta, self.hechos, self.reglas)
         self.assertIsInstance(resultado, bool)
+
+    # --------------------------------------------------
+
+    def test_ingredientes_y_recetas(self):
+        if not self.use_full:
+            self.skipTest("Test de ingredientes y recetas solo se ejecuta con la base de datos completa.")
+        
+        # Verifica si la receta de bica_blanca_laza es disponible
+        out = _capture(ejecutar_consulta, "bica_blanca_laza receta_disponible X?", self.hechos, [])
+        self.assertIn("X = true", out)
+
+        # Verifica si una receta es apta para celiacos (contiene gluten)
+        out = _capture(ejecutar_consulta, "bica_blanca_laza no_apta_celiacos X?", self.hechos, [])
+        self.assertIn("X = true", out)
+
+        # Verifica si una receta no es apta para personas con intolerancia a la lactosa
+        out = _capture(ejecutar_consulta, "bica_blanca_laza no_apta_lactosa X?", self.hechos, [])
+        self.assertIn("X = true", out)
+
+    # --------------------------------------------------
+
+    def test_maridajes(self):
+        if not self.use_full:
+            self.skipTest("Test de maridajes solo se ejecuta con la base de datos completa.")
+
+        # Verifica si el vino tinto marida con carne
+        out = _capture(ejecutar_consulta, "vino_tinto marida carne?", self.hechos, [])
+        self.assertTrue("Sí" in out)
+
+        # Verifica si la cerveza suave marida con ensalada
+        out = _capture(ejecutar_consulta, "cerveza_suave marida ensalada?", self.hechos, [])
+        self.assertTrue("Sí" in out)
+
+        # Verifica si el café marida con postre
+        out = _capture(ejecutar_consulta, "café marida postre?", self.hechos, [])
+        self.assertTrue("Sí" in out)
 
 
 # Permite ejecutar este archivo como script
