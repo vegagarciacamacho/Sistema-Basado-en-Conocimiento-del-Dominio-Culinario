@@ -1,4 +1,4 @@
-# Base de Conocimiento Corregida
+# Base de Conocimiento
 # Incluye ejemplos de: Lógica Difusa, Precedencias y Restricciones
 
 # --------------------------------------------------
@@ -170,7 +170,6 @@ vinagre hay 600.
 # --------------------------------------------------
 # REGLAS DE DISPONIBILIDAD CON RESTRICCIONES
 # --------------------------------------------------
-# EJEMPLO DE RESTRICCIONES: Solo disponible si cantidad > 0
 
 X ingrediente_disponible true <- X es ingrediente, X hay Z. [Z > 0]
 X ingrediente_disponible false <- X es ingrediente, X hay Y. [Y = 0]
@@ -178,8 +177,6 @@ X ingrediente_disponible false <- X es ingrediente, X hay Y. [Y = 0]
 # --------------------------------------------------
 # SECCIÓN 3: REGLAS DE CLASIFICACIÓN CON PRECEDENCIAS
 # --------------------------------------------------
-
-# EJEMPLO DE PRECEDENCIAS: Reglas ordenadas por importancia
 
 # Alta prioridad (900): Restricciones dietéticas críticas
 X no_apta_celiacos true <- X es receta, X contiene Y, Y es ingrediente, Y contiene gluten. [900]
@@ -201,8 +198,6 @@ X receta_ideal_cena true <- X receta_rapida true, X receta_baja_calorias true. [
 # SECCIÓN 4: REGLAS CON LÓGICA DIFUSA
 # --------------------------------------------------
 
-# EJEMPLO DE LÓGICA DIFUSA: Compatibilidad con diferentes certezas
-
 # Clasificación de ingredientes por sabor (con incertidumbre)
 X ingrediente_dulce true <- X sabor dulce. [1.0]
 X ingrediente_salado true <- X sabor salado. [0.9]
@@ -220,8 +215,6 @@ X recomendado_desayuno true <- X tipo para_cocinar. [0.6]
 # --------------------------------------------------
 # SECCIÓN 5: COMBINACIÓN DE EXTENSIONES
 # --------------------------------------------------
-
-# EJEMPLO COMBINADO: Difusa + Precedencia + Restricciones
 
 # Recomendación de recetas con múltiples criterios
 X receta_recomendada_alta true <- X es receta, X tiempo_total T, X energía E. [0.9; 850; T < 30; E < 600]
@@ -550,4 +543,3 @@ Bebida acompaña_receta Receta <- Receta es receta, Receta contiene Ingrediente,
 # X receta_alta_proteina true?
 # X receta_baja_calorias true?
 # X receta_rapida true?
-#
