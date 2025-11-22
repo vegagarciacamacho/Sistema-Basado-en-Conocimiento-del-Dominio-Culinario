@@ -406,7 +406,7 @@ def descubrir(hechos: list[tuple[Tripleta, Extension | None]],
                                 ext_existente.difusa.valor = grado
                         break
 
-                if existe:
+                if not existe:
                     hechos_totales.append((nuevo_hecho, ext))
                     hechos_nuevos.append((nuevo_hecho, ext))
                     cambio = True

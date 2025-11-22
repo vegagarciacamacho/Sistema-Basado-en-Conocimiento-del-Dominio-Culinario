@@ -1,10 +1,5 @@
-# Base de Concimiento:
-# Incluye hechos relacionados con alimentos y sus propiedades como la cantidad, el sabor, el color,...
-# También, se incluyen reglas que permiten inferir la disponibilidad o necesidad del producto según los hechos,
-# para esto utiliza reglas con la estructura consecuente <- antecedente.
-# Las reglas y hechos se expresan con tripletas, y los antecedentes pueden estar formados por varias tripletas,
-# para que se de el consecuente se tienen que cumplir todos los antecedentes de esa regla.
-# Para organizar mejor la base la hemos dividido en dos grupos: Hechos y Reglas.
+# Base de Conocimiento Corregida
+# Incluye ejemplos de: Lógica Difusa, Precedencias y Restricciones
 
 # --------------------------------------------------
 # SECCIÓN 1: INGREDIENTES Y PROPIEDADES BÁSICAS
@@ -39,6 +34,9 @@ plátano origen ecuador.
 zanahoria es ingrediente.
 zanahoria color naranja.
 zanahoria contiene betacaroteno.
+
+ajo es ingrediente.
+ajo sabor intenso.
 
 huevo es ingrediente.
 huevo origen granja.
@@ -100,7 +98,7 @@ lentejas tiene hierro.
 quinoa es ingrediente.
 
 pimiento_verde es ingrediente.
-pimiento_verde tipo pimineto.
+pimiento_verde tipo pimiento.
 pimiento_verde color verde.
 
 pimiento_rojo es ingrediente.
@@ -150,6 +148,7 @@ quinoa hay 350.
 brocoli hay 0.
 queso_rallado hay 200.
 garbanzo hay 500.
+ajo hay 10.
 
 # Ingredientes medidos en unidades
 huevo hay 12.
@@ -168,23 +167,76 @@ nata hay 325.
 miel hay 250.
 vinagre hay 600.
 
-X ingrediente disponible <-  X es ingrediente, X hay Z. [Z > 0]
-X disponible_si true <- X es Y, Y ingrediente disponible.
-X disponible_si false <- X es ingrediente, X hay Y. [Y = 0]
-X lista_compra sí <- X es ingrediente, X disponible_si false.
+# --------------------------------------------------
+# REGLAS DE DISPONIBILIDAD CON RESTRICCIONES
+# --------------------------------------------------
+# EJEMPLO DE RESTRICCIONES: Solo disponible si cantidad > 0
+
+X ingrediente_disponible true <- X es ingrediente, X hay Z. [Z > 0]
+X ingrediente_disponible false <- X es ingrediente, X hay Y. [Y = 0]
 
 # --------------------------------------------------
-# SECCIÓN 3: COMPOSICIÓN DE RECETAS
+# SECCIÓN 3: REGLAS DE CLASIFICACIÓN CON PRECEDENCIAS
 # --------------------------------------------------
 
-X receta_disponible true <- X es receta, X contiene Y, Y disponible_si true. # Cambiar a cantidades
-# Si un ingrediente está disponible da igual si los demás no --> receta va a ser disponible ??
+# EJEMPLO DE PRECEDENCIAS: Reglas ordenadas por importancia
 
-X no_apta_celiacos true <- X es receta, X contiene Y, Y es ingrediente, Y contiene gluten.
-X no_apta_lactosa true <- X es receta, X contiene Y, Y es ingrediente, Y contiene lácteos.
-X no_apta_hipertension true <- X es receta, X contiene Y, Y es ingrediente, Y contiene sal.
+# Alta prioridad (900): Restricciones dietéticas críticas
+X no_apta_celiacos true <- X es receta, X contiene Y, Y es ingrediente, Y contiene gluten. [900]
+X no_apta_lactosa true <- X es receta, X contiene Y, Y es ingrediente, Y contiene lácteos. [900]
+X no_apta_hipertension true <- X es receta, X contiene Y, Y es ingrediente, Y contiene sal. [850]
 
-No es_tripleta <- hay un error. # Prueba de error
+# Prioridad media-alta (700-800): Clasificación nutricional
+X receta_alta_proteina true <- X es receta, X proteina P. [750; P > 30000]
+X receta_baja_calorias true <- X es receta, X energía E. [700; E < 500]
+
+# Prioridad media (500-600): Clasificación general
+X receta_rapida true <- X es receta, X tiempo_total T. [600]
+X receta_economica true <- X es receta, X coste bajo. [550]
+
+# Prioridad baja (300-400): Recomendaciones suaves
+X receta_ideal_cena true <- X receta_rapida true, X receta_baja_calorias true. [400]
+
+# --------------------------------------------------
+# SECCIÓN 4: REGLAS CON LÓGICA DIFUSA
+# --------------------------------------------------
+
+# EJEMPLO DE LÓGICA DIFUSA: Compatibilidad con diferentes certezas
+
+# Clasificación de ingredientes por sabor (con incertidumbre)
+X ingrediente_dulce true <- X sabor dulce. [1.0]
+X ingrediente_salado true <- X sabor salado. [0.9]
+X ingrediente_acido true <- X sabor ácido. [0.85]
+
+# Compatibilidad de ingredientes en ensaladas
+X bueno_ensalada true <- X tipo verdura. [0.9]
+X bueno_ensalada true <- X textura crujiente. [0.8]
+X bueno_ensalada true <- X color verde. [0.7]
+
+# Ingredientes recomendados para diferentes tipos de platos
+X recomendado_postre true <- X contiene azúcar. [0.8]
+X recomendado_desayuno true <- X tipo para_cocinar. [0.6]
+
+# --------------------------------------------------
+# SECCIÓN 5: COMBINACIÓN DE EXTENSIONES
+# --------------------------------------------------
+
+# EJEMPLO COMBINADO: Difusa + Precedencia + Restricciones
+
+# Recomendación de recetas con múltiples criterios
+X receta_recomendada_alta true <- X es receta, X tiempo_total T, X energía E. [0.9; 850; T < 30; E < 600]
+X receta_recomendada_media true <- X es receta, X tiempo_total T. [0.7; 600; T < 60]
+X receta_recomendada_baja true <- X es receta, X coste bajo. [0.5; 400]
+
+# Disponibilidad de recetas basada en ingredientes
+X receta_totalmente_disponible true <- X es receta, X contiene Y, Y es ingrediente, Y ingrediente_disponible true. [0.95; 800]
+
+# Clasificación de dificultad
+X receta_muy_facil true <- X es receta, X dificultad fácil, X tiempo_total T. [0.9; 700; T < 30]
+
+# --------------------------------------------------
+# SECCIÓN 6: COMPOSICIÓN DE RECETAS
+# --------------------------------------------------
 
 ############################
 # Bica blanca de Laza
@@ -194,29 +246,28 @@ bica_blanca_laza es receta.
 
 bica_blanca_laza contiene ingrediente001.
 ingrediente001 es nata.
-ingrediente001 necesita 200. # mL
+ingrediente001 necesita 200.
 
 bica_blanca_laza contiene ingrediente002.
 ingrediente002 es huevo.
-ingrediente002 necesita 5. # unidades
+ingrediente002 necesita 5.
 
 bica_blanca_laza contiene ingrediente003.
 ingrediente003 es azúcar.
-ingrediente003 necesita 250. # gramos
+ingrediente003 necesita 250.
 
-bica_blanca_laza contiene ingrediente004
+bica_blanca_laza contiene ingrediente004.
 ingrediente004 es harina_trigo.
-ingrediente004 necesita 200. # gramos
+ingrediente004 necesita 200.
 
 bica_blanca_laza raciones 6.
 bica_blanca_laza coste bajo.
 bica_blanca_laza dificultad fácil.
-bica_blanca_laza preparación 15min.
-bica_blanca_laza cocinado 30min.
-bica_blanca_laza tiempo_total 45min.
-
-bica_blanca_laza energía 284. # kcal
-bica_blanca_laza proteína 2840. # mg
+bica_blanca_laza preparación 15.
+bica_blanca_laza cocinado 30.
+bica_blanca_laza tiempo_total 45.
+bica_blanca_laza energía 284.
+bica_blanca_laza proteina 2840.
 
 ############################
 # Espaguetis con salmón
@@ -226,40 +277,39 @@ espaguetis_con_salmon es receta.
 
 espaguetis_con_salmon contiene ingrediente006.
 ingrediente006 es espaguetis.
-ingrediente006 necesita 200. # gramos
+ingrediente006 necesita 200.
 
 espaguetis_con_salmon contiene ingrediente007.
 ingrediente007 es sal.
 
 espaguetis_con_salmon contiene ingrediente008.
 ingrediente008 es aceite_oliva.
-ingrediente008 necesita 5. # mL
+ingrediente008 necesita 5.
 
 espaguetis_con_salmon contiene ingrediente009.
 ingrediente009 es ajo.
-ingrediente009 necesita 1. # unidad
+ingrediente009 necesita 1.
 
 espaguetis_con_salmon contiene ingrediente010.
 ingrediente010 es tomate.
-ingrediente009 necesita 50. # gramos
+ingrediente010 necesita 50.
 
 espaguetis_con_salmon contiene ingrediente011.
 ingrediente011 es nata.
-ingrediente011 necesita 200. # mL
+ingrediente011 necesita 200.
 
 espaguetis_con_salmon contiene ingrediente013.
 ingrediente013 es salmón.
-ingrediente013 necesita 200. # gramos
+ingrediente013 necesita 200.
 
 espaguetis_con_salmon raciones 2.
 espaguetis_con_salmon coste bajo.
 espaguetis_con_salmon dificultad fácil.
-espaguetis_con_salmon preparacion 5m.
-espaguetis_con_salmon cocinado 20m.
-espaguetis_con_salmon tiempo_total 25m.
-
-espaguetis_con_salmon energía 992. # kcal
-espaguetis_con_salmon proteina 37500. # mg
+espaguetis_con_salmon preparacion 5.
+espaguetis_con_salmon cocinado 20.
+espaguetis_con_salmon tiempo_total 25.
+espaguetis_con_salmon energía 992.
+espaguetis_con_salmon proteina 37500.
 
 ############################
 # Lentejas con quinoa
@@ -269,27 +319,27 @@ lentejas_con_quinoa es receta.
 
 lentejas_con_quinoa contiene ingrediente015.
 ingrediente015 es lentejas.
-ingrediente015 necesita 200. # gramos
+ingrediente015 necesita 200.
 
 lentejas_con_quinoa contiene ingrediente016.
 ingrediente016 es quinoa.
-ingrediente016 necesita 75. # gramos
+ingrediente016 necesita 75.
 
 lentejas_con_quinoa contiene ingrediente017.
 ingrediente017 es pimiento_verde.
-ingrediente017 necesita 1. # unidad
+ingrediente017 necesita 1.
 
 lentejas_con_quinoa contiene ingrediente018.
 ingrediente018 es zanahoria.
-ingrediente018 necesita 1. # unidad
+ingrediente018 necesita 1.
 
 lentejas_con_quinoa contiene ingrediente019.
 ingrediente019 es tomate.
-ingrediente019 necesita 50. # gramos
+ingrediente019 necesita 50.
 
 lentejas_con_quinoa contiene ingrediente020.
 ingrediente020 es ajo.
-ingrediente020 necesita 2. # unidades
+ingrediente020 necesita 2.
 
 lentejas_con_quinoa contiene ingrediente024.
 ingrediente024 es sal.
@@ -297,12 +347,11 @@ ingrediente024 es sal.
 lentejas_con_quinoa raciones 6.
 lentejas_con_quinoa coste bajo.
 lentejas_con_quinoa dificultad fácil.
-lentejas_con_quinoa preparacion 10m.
-lentejas_con_quinoa cocinado 50m.
-lentejas_con_quinoa tiempo_total 60m.
-
-lentejas_con_quinoa energía 221. # kcal
-lentejas_con_quinoa proteina 11000. # mg
+lentejas_con_quinoa preparacion 10.
+lentejas_con_quinoa cocinado 50.
+lentejas_con_quinoa tiempo_total 60.
+lentejas_con_quinoa energía 221.
+lentejas_con_quinoa proteina 11000.
 
 ############################
 # Muslos de pollo
@@ -312,36 +361,35 @@ muslos_de_pollo es receta.
 
 muslos_de_pollo contiene ingrediente027.
 ingrediente027 es pollo.
-ingrediente027 necesita 1000. # gramos
+ingrediente027 necesita 1000.
 
 muslos_de_pollo contiene ingrediente028.
 ingrediente028 es sal.
 
 muslos_de_pollo contiene ingrediente032.
 ingrediente032 es ajo.
-ingrediente032 necesita 1. # unidad
+ingrediente032 necesita 1.
 
 muslos_de_pollo contiene ingrediente033.
 ingrediente033 es miel.
-ingrediente033 necesita 15. # mL
+ingrediente033 necesita 15.
 
 muslos_de_pollo contiene ingrediente034.
 ingrediente034 es aceite_oliva.
-ingrediente034 necesita 15. # mL
+ingrediente034 necesita 15.
 
 muslos_de_pollo contiene ingrediente036.
 ingrediente036 es patata.
-ingrediente036 necesita 2. # unidades
+ingrediente036 necesita 2.
 
 muslos_de_pollo raciones 3.
 muslos_de_pollo coste bajo.
 muslos_de_pollo dificultad fácil.
-muslos_de_pollo preparacion 5m.
-muslos_de_pollo cocinado 1h30m.
-muslos_de_pollo tiempo_total 1h35m.
-
-muslos_de_pollo energía 100. # kcal
-muslos_de_pollo proteina 45980. # mg
+muslos_de_pollo preparacion 5.
+muslos_de_pollo cocinado 90.
+muslos_de_pollo tiempo_total 95.
+muslos_de_pollo energía 100.
+muslos_de_pollo proteina 45980.
 
 ############################
 # Quiche de salmón
@@ -351,48 +399,47 @@ quiche_de_salmon es receta.
 
 quiche_de_salmon contiene ingrediente037.
 ingrediente037 es hojaldre.
-ingrediente037 necesita 1. # unidad
+ingrediente037 necesita 1.
 
 quiche_de_salmon contiene ingrediente038.
 ingrediente038 es aceite_oliva.
-ingrediente038 necesita 15. # mL
+ingrediente038 necesita 15.
 
 quiche_de_salmon contiene ingrediente039.
 ingrediente039 es ajo.
-ingrediente007 necesita 2. # unidades
+ingrediente039 necesita 2.
 
 quiche_de_salmon contiene ingrediente040.
 ingrediente040 es brocoli.
-ingrediente008 necesita 200. # gramos
+ingrediente040 necesita 200.
 
 quiche_de_salmon contiene ingrediente041.
 ingrediente041 es huevo.
-ingrediente041 necesita 3. # unidades
+ingrediente041 necesita 3.
 
 quiche_de_salmon contiene ingrediente042.
 ingrediente042 es nata.
-ingrediente010 necesita 200. # mL
+ingrediente042 necesita 200.
 
 quiche_de_salmon contiene ingrediente043.
 ingrediente043 es queso_rallado.
-ingrediente043 necesita 75. # gramos
+ingrediente043 necesita 75.
 
 quiche_de_salmon contiene ingrediente044.
 ingrediente044 es sal.
 
 quiche_de_salmon contiene ingrediente047.
 ingrediente047 es salmón.
-ingrediente047 necesita 150. # gramos
+ingrediente047 necesita 150.
 
 quiche_de_salmon raciones 4.
 quiche_de_salmon coste bajo.
 quiche_de_salmon dificultad fácil.
-quiche_de_salmon preparacion 20m.
-quiche_de_salmon cocinado 55m.
-quiche_de_salmon tiempo_total 1h15m.
-
-quiche_de_salmon energía 1500. # kcal
-quiche_de_salmon proteina 28970mg.
+quiche_de_salmon preparacion 20.
+quiche_de_salmon cocinado 55.
+quiche_de_salmon tiempo_total 75.
+quiche_de_salmon energía 1500.
+quiche_de_salmon proteina 28970.
 
 ############################
 # Ensalada de garbanzos mediterránea
@@ -400,61 +447,59 @@ quiche_de_salmon proteina 28970mg.
 
 ensalada_garbanzos es receta.
 
-# Ingredientes
 ensalada_garbanzos contiene ingrediente048.
 ingrediente048 es huevo.
-ingrediente048 necesita 2. # unidades
+ingrediente048 necesita 2.
 
 ensalada_garbanzos contiene ingrediente049.
 ingrediente049 es tomate.
-ingrediente049 necesita 50. # gramos
+ingrediente049 necesita 50.
 
 ensalada_garbanzos contiene ingrediente050.
 ingrediente050 es cebolla.
-ingrediente050 necesita 1. # unidad
+ingrediente050 necesita 1.
 
 ensalada_garbanzos contiene ingrediente051.
 ingrediente051 es aceituna.
-ingrediente051 necesita 60. # gramos
+ingrediente051 necesita 60.
 
 ensalada_garbanzos contiene ingrediente052.
 ingrediente052 es pimiento_rojo.
-ingrediente052 necesita 1. # unidad
+ingrediente052 necesita 1.
 
 ensalada_garbanzos contiene ingrediente053.
 ingrediente053 es aceite_oliva.
-ingrediente053 necesita 30. # mL
+ingrediente053 necesita 30.
 
 ensalada_garbanzos contiene ingrediente054.
 ingrediente054 es vinagre.
-ingrediente054 necesita 10. # mL
+ingrediente054 necesita 10.
 
 ensalada_garbanzos contiene ingrediente055.
 ingrediente055 es sal.
 
 ensalada_garbanzos contiene ingrediente056.
 ingrediente056 es garbanzo.
-ingrediente056 necesita 200. # gramos
+ingrediente056 necesita 200.
 
 ensalada_garbanzos raciones 2.
 ensalada_garbanzos coste bajo.
 ensalada_garbanzos dificultad fácil.
-ensalada_garbanzos preparacion 15m.
-ensalada_garbanzos tiempo_total 15m.
-
-ensalada_garbanzos energía 732. # kcal
-ensalada_garbanzos proteina 33100. # mg
+ensalada_garbanzos preparacion 15.
+ensalada_garbanzos tiempo_total 15.
+ensalada_garbanzos energía 732.
+ensalada_garbanzos proteina 33100.
 
 # --------------------------------------------------
-# SECCIÓN 4: MARIDAJES Y COMBINACIONES
+# SECCIÓN 7: MARIDAJES CON LÓGICA DIFUSA
 # --------------------------------------------------
 
 vino_tinto es bebida.
-vino_tinto marida carne.
+vino_tinto marida carne. [1.0]
 vino_tinto origen rioja.
 
 vino_blanco es bebida.
-vino_blanco marida pescado.
+vino_blanco marida pescado. [1.0]
 
 cerveza_suave es bebida.
 cerveza_suave marida ensalada. [0.7]
@@ -462,10 +507,47 @@ cerveza_suave marida ensalada. [0.7]
 café es bebida.
 café marida postre. [0.8]
 
-Bebida acompaña_receta true <- Y es receta, Y contiene X, Bebida marida X, Bebida es bebida.
+agua es bebida.
+agua marida todo. [0.5]
+
+# Regla de maridaje con lógica difusa
+Bebida acompaña_receta Receta <- Receta es receta, Receta contiene Ingrediente, Ingrediente es Tipo, Bebida marida Tipo, Bebida es bebida. [0.85; 750]
 
 # --------------------------------------------------
-# SECCIÓN 5: RESTRICCIONES DIETÉTICAS Y ALÉRGENOS
+# EJEMPLOS DE CONSULTAS PARA PROBAR
 # --------------------------------------------------
-
-
+# 
+# === CONSULTAS BÁSICAS ===
+# X es receta?
+# X es ingrediente?
+# tomate hay Y?
+# 
+# === RESTRICCIONES ===
+# X ingrediente_disponible true?
+# X ingrediente_disponible false?
+# 
+# === PRECEDENCIAS (Alta Prioridad) ===
+# X no_apta_celiacos true?
+# X no_apta_lactosa true?
+# X no_apta_hipertension true?
+# 
+# === LÓGICA DIFUSA ===
+# X bueno_ensalada true?
+# X recomendado_postre true?
+# X ingrediente_dulce true?
+# 
+# === COMBINADAS ===
+# X receta_recomendada_alta true?
+# X receta_muy_facil true?
+# X receta_totalmente_disponible true?
+# 
+# === RAZONAMIENTO ===
+# razona si bica_blanca_laza no_apta_celiacos true?
+# razona si espaguetis_con_salmon receta_alta_proteina true?
+# razona si lentejas_con_quinoa receta_rapida true?
+#
+# === CLASIFICACIÓN NUTRICIONAL ===
+# X receta_alta_proteina true?
+# X receta_baja_calorias true?
+# X receta_rapida true?
+#
