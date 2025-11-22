@@ -7,12 +7,7 @@ def parse_ext(text):
     parser = ParserSBC()
     resultado = parser.extension.parseString(text, parseAll=True)
 
-    # Crear un objeto tipo pyparsing.ParseResults que imite lo que espera el método
-    from pyparsing import ParseResults
-    wrapped = ParseResults()
-    wrapped["extension"] = resultado
-
-    return parser._parsear_extension(wrapped)
+    return parser._parsear_extension(resultado)
 
 
 class TestParserExtension(unittest.TestCase):

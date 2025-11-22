@@ -123,6 +123,65 @@ class LogicaDifusa:
 
     def __repr__(self) -> str:
         return f"{self.valor}"
+    
+    # T-NORMAS (operadores AND difusos)
+    @staticmethod
+    def t_min(a: float, b: float) -> float:
+        """T-norma mínimo (Zadeh)"""
+        return min(a, b)
+    
+    @staticmethod
+    def t_producto(a: float, b: float) -> float:
+        """T-norma producto (Larsen)"""
+        return a * b
+    
+    @staticmethod
+    def t_lukasiewicz(a: float, b: float) -> float:
+        """T-norma de Lukasiewicz"""
+        return max(0, a + b - 1)
+    
+    # S-NORMAS (operadores OR difusos)
+    @staticmethod
+    def s_max(a: float, b: float) -> float:
+        """S-norma máximo (Zadeh)"""
+        return max(a, b)
+    
+    @staticmethod
+    def s_suma_probabilistica(a: float, b: float) -> float:
+        """S-norma suma probabilística"""
+        return a + b - a * b
+    
+    @staticmethod
+    def s_lukasiewicz(a: float, b: float) -> float:
+        """S-norma de Lukasiewicz"""
+        return min(1, a + b)
+    
+    # IMPLICACIONES DIFUSAS
+    @staticmethod
+    def impl_mamdani(antecedente: float, consecuente: float) -> float:
+        """Implicación de Mamdani (mínimo)"""
+        return min(antecedente, consecuente)
+    
+    @staticmethod
+    def impl_larsen(antecedente: float, consecuente: float) -> float:
+        """Implicación de Larsen (producto)"""
+        return antecedente * consecuente
+    
+    @staticmethod
+    def impl_zadeh(antecedente: float, consecuente: float) -> float:
+        """Implicación de Zadeh"""
+        return max(1 - antecedente, min(antecedente, consecuente))
+    
+    # AGREGACIÓN
+    @staticmethod
+    def agregacion_max(valores: list[float]) -> float:
+        """Agregación por máximo"""
+        return max(valores) if valores else 0.0
+    
+    @staticmethod
+    def agregacion_suma(valores: list[float]) -> float:
+        """Agregación por suma acotada"""
+        return min(1.0, sum(valores))
 
 
 @dataclass

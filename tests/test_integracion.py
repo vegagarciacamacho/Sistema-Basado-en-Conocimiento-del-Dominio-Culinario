@@ -116,8 +116,10 @@ class TestMotor(unittest.TestCase):
 
         consulta = Tripleta("tomate", "es_vegetal", "verdadero")
 
-        resultado = razona(consulta, self.hechos, self.reglas)
+        resultado, grado = razona(consulta, self.hechos, self.reglas)
         self.assertIsInstance(resultado, bool)
+        self.assertIsInstance(grado, float)
+
 
     # --------------------------------------------------
 

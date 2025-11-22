@@ -66,12 +66,12 @@ class ParserSBC:
         opcional = difusa | precedencia | restriccion
         punto_coma = Suppress(Optional(" ") + Literal(";") + Optional(" "))
         
-        self.extension = (
+        self.extension = Group(
             Suppress("[") + 
             opcional + 
             ZeroOrMore(punto_coma + opcional) + 
             Suppress("]")
-        )
+        )("extension")
         
         # Separadores
         flecha = Suppress(Optional(" ") + Literal("<-") + Optional(" "))
@@ -91,7 +91,7 @@ class ParserSBC:
         self.afirmacion = (
             Group(self.tripleta)("tripleta") + 
             punto + 
-            Optional(self.extension)("extension")
+            Optional(self.extension)
         )
         
         # Negación: "no " tripleta "."
@@ -109,42 +109,20 @@ class ParserSBC:
             flecha + 
             lista_antecedentes("antecedentes") + 
             punto +
-            Optional(self.extension)("extension")
+            Optional(self.extension)
         )
         
         # Parser completo para líneas de archivo (regla, afirmación o tripleta sola)
         self.linea_archivo = (self.regla | self.afirmacion | self.tripleta) + Optional(self.comentario)
     
     def parsear_tripleta(self, texto: str) -> Tripleta:
-        """
-        Parsea una tripleta desde texto.
-        
-        Args:
-            texto: String con formato "sujeto predicado objeto"
-            
-        Returns:
-            Tripleta parseada
-            
-        Raises:
-            ParseException: Si el formato no es válido
-        """
+        """Parsea una tripleta."""
         resultado = self.tripleta.parseString(texto, parseAll=True)
         trip = resultado[0]
         return Tripleta(trip['sujeto'], trip['predicado'], trip['objeto'])
     
     def parsear_consulta(self, texto: str) -> tuple[Tripleta, bool]:
-        """
-        Parsea una consulta (termina en ?).
-        
-        Args:
-            texto: String con formato "sujeto predicado objeto?" o "razona si sujeto predicado objeto?"
-            
-        Returns:
-            Tupla (tripleta, es_razonamiento)
-            
-        Raises:
-            ParseException: Si el formato no es válido
-        """
+        """Parsea una consulta (con o sin razonamiento)."""
         resultado = self.consulta.parseString(texto, parseAll=True)
         
         # Detectar si es razonamiento o consulta simple
@@ -155,18 +133,7 @@ class ParserSBC:
         return Tripleta(trip['sujeto'], trip['predicado'], trip['objeto']), es_razonamiento
     
     def parsear_afirmacion(self, texto: str) -> tuple[Tripleta, Extension | None]:
-        """
-        Parsea una afirmación (termina en .).
-        
-        Args:
-            texto: String con formato "sujeto predicado objeto." o "sujeto predicado objeto. [ext]"
-            
-        Returns:
-            Tupla (tripleta, extension)
-            
-        Raises:
-            ParseException: Si el formato no es válido
-        """
+        """Parsea una afirmación con posible extensión."""
         resultado = self.afirmacion.parseString(texto, parseAll=True)
         trip = resultado['tripleta'][0]
         tripleta = Tripleta(trip['sujeto'], trip['predicado'], trip['objeto'])
@@ -174,18 +141,7 @@ class ParserSBC:
         return tripleta, extension
     
     def parsear_negacion(self, texto: str) -> Tripleta:
-        """
-        Parsea una negación (comienza con "no" y termina en .).
-        
-        Args:
-            texto: String con formato "no sujeto predicado objeto."
-            
-        Returns:
-            Tripleta a revocar
-            
-        Raises:
-            ParseException: Si el formato no es válido
-        """
+        """Parsea una negación."""
         resultado = self.negacion.parseString(texto, parseAll=True)
         trip = resultado['tripleta'][0]
         return Tripleta(trip['sujeto'], trip['predicado'], trip['objeto'])
@@ -227,19 +183,19 @@ class ParserSBC:
             trip = resultado['tripleta'][0]
             extension = self._parsear_extension(resultado)
             hecho = Tripleta(trip['sujeto'], trip['predicado'], trip['objeto'])
-            return 'hecho', hecho
+            return 'hecho', (hecho, extension)
             
         else:
             # Tripleta simple (retrocompatibilidad)
             trip = resultado[0]
             hecho = Tripleta(trip['sujeto'], trip['predicado'], trip['objeto'])
-            return 'tripleta', hecho
+            return 'tripleta', (hecho, None)
     
     def _parsear_extension(self, resultado) -> Extension | None:
         """Extrae los datos de extensión del resultado del parser."""
         if 'extension' not in resultado:
             return None
-        
+
         ext_data = resultado['extension']
         if not ext_data:
             return None
@@ -249,14 +205,16 @@ class ParserSBC:
         # Buscar difusa
         if 'difusa' in ext_data:
             try:
-                extension.difusa = LogicaDifusa(float(ext_data['difusa']))
+                valor_difuso = float(ext_data['difusa'])
+                extension.difusa = LogicaDifusa(valor_difuso)
             except (ValueError, TypeError):
                 pass
         
         # Buscar precedencia
         if 'precedencia' in ext_data:
             try:
-                extension.precedencia = int(ext_data['precedencia'])
+                prec = int(ext_data['precedencia'])
+                extension.precedencia = prec
             except (ValueError, TypeError):
                 pass
         

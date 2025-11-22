@@ -71,7 +71,11 @@ def cli():
                 try:
                     consulta_tripleta, _ = _parser.parsear_consulta(entrada)
                     
-                    if razona(consulta_tripleta, hechos, reglas):
+                    deducido, grado = razona(consulta_tripleta, hechos, reglas)
+                    if deducido and grado < 1.0:
+                        print(f"Sí, se puede deducir: {consulta_tripleta} "
+                              f"con certeza {grado:.2f}\n")
+                    elif deducido:
                         print(f"Sí, se puede deducir: {consulta_tripleta}\n")
                     else:
                         print(f"No se puede deducir: {consulta_tripleta}\n")
