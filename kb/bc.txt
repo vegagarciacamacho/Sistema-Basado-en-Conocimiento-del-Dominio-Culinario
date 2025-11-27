@@ -75,6 +75,7 @@ salmón origen océano.
 azúcar es ingrediente.
 azúcar contiene azúcar.
 azúcar tipo blanco.
+azúcar contiene dulce.
 
 sal es ingrediente.
 sal contiene sal.
@@ -498,13 +499,13 @@ cerveza_suave es bebida.
 cerveza_suave marida ensalada. [0.7]
 
 café es bebida.
-café marida postre. [0.8]
+café marida dulce. [0.8]
 
 agua es bebida.
 agua marida todo. [0.5]
 
 # Regla de maridaje con lógica difusa
-Bebida acompaña_receta Receta <- Receta es receta, Receta contiene Ingrediente, Ingrediente es Tipo, Bebida marida Tipo, Bebida es bebida. [0.85; 750]
+Bebida acompaña_receta Receta <- Receta es receta, Receta contiene Ingrediente, Ingrediente es X, X contiene Tipo, Bebida marida Tipo, Bebida es bebida. [0.85; 750]
 
 # --------------------------------------------------
 # EJEMPLOS DE CONSULTAS PARA PROBAR
@@ -538,8 +539,17 @@ Bebida acompaña_receta Receta <- Receta es receta, Receta contiene Ingrediente,
 # razona si bica_blanca_laza no_apta_celiacos true?
 # razona si espaguetis_con_salmon receta_alta_proteina true?
 # razona si lentejas_con_quinoa receta_rapida true?
+# razona si bica_blanca_laza receta_totalmente_disponible true?
+# razona si vino_blanco acompaña_receta quiche_de_salmon?
 #
 # === CLASIFICACIÓN NUTRICIONAL ===
 # X receta_alta_proteina true?
 # X receta_baja_calorias true?
 # X receta_rapida true?
+#
+#
+# === LISTAS DE INGREDIENTES ===
+# X ingrediente_disponible true? -> Para saber la disponibilidad de ingredientes
+# X ingrediente_disponible flase? -> Para saber los ingredientes faltantes
+
+aceituna_negra es negra.
