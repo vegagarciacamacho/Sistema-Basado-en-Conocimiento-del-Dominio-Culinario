@@ -413,6 +413,29 @@ def descubrir(hechos: list[tuple[Tripleta, Extension | None]],
     
     return hechos_nuevos
 
+def imprimir_resultados(resultados):
+    """Imprime las sustituciones de manera sencilla y organizada en formato tabla."""
+    
+    if resultados:
+        # Usamos un set para evitar duplicados y agrupar por la variable
+        variables = set(list(sust.keys())[0] for sust, _ in resultados)
+        
+        print(f"{'Variable':<10} | {'Valor'}")
+        print("-" * 30)  # Separador
+        
+        for sust, grado in resultados:
+            # Extraer la variable y su valor
+            variable = list(sust.keys())[0]  # Tomar la clave del diccionario
+            valor = list(sust.values())[0]   # Tomar el valor correspondiente
+            
+            # Si el grado de certeza es menor a 1.0, lo mostramos con dos decimales
+            if grado < 1.0:
+                print(f"{variable:<10} | {valor} [certeza: {grado:.2f}]")
+            else:
+                print(f"{variable:<10} | {valor}")
+    else:
+        print("No se encontraron coincidencias.\n")
+
 def ejecutar_consulta(entrada: str, base_conocimiento: list[Tripleta, Extension | None], 
                       hechos_deducidos: list[Tripleta, Extension | None]) -> None:
     """
@@ -432,18 +455,7 @@ def ejecutar_consulta(entrada: str, base_conocimiento: list[Tripleta, Extension 
             resultados = list(consultar(consulta_tripleta, base_total))
             
             if resultados:
-                for sust, grado in resultados:
-                    if sust:  # Si hay variables asignadas
-                        if grado < 1.0:
-                            print(f"  {sust} [certeza: {grado:.2f}]")
-                        else:
-                            print(f"  {sust}")
-                    else:  # Consulta sin variables que se cumple
-                        if grado < 1.0:
-                            print(f"  Sí [certeza: {grado:.2f}]")
-                        else:
-                            print(f"  Sí")
-                print()
+                imprimir_resultados(resultados)  # Imprimir en formato más simple
             else:
                 print("No se encontraron coincidencias.\n")
         else:
