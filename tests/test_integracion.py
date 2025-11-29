@@ -128,8 +128,8 @@ class TestMotor(unittest.TestCase):
             self.skipTest("Test de ingredientes y recetas solo se ejecuta con la base de datos completa.")
         
         # Verifica si la receta de bica_blanca_laza es disponible
-        out = _capture(ejecutar_consulta, "bica_blanca_laza receta_disponible X?", self.hechos, [])
-        self.assertIn("X = true", out)
+        out = _capture(razona, "razona si bica_blanca_laza receta_totalmente_disponible true?", self.hechos, [])
+        self.assertIn("Sí, se puede deducir: bica_blanca_laza receta_totalmente_disponible true con certeza 0.95", out)
 
         # Verifica si una receta es apta para celiacos (contiene gluten)
         out = _capture(ejecutar_consulta, "bica_blanca_laza no_apta_celiacos X?", self.hechos, [])
@@ -147,15 +147,15 @@ class TestMotor(unittest.TestCase):
 
         # Verifica si el vino tinto marida con carne
         out = _capture(ejecutar_consulta, "vino_tinto marida carne?", self.hechos, [])
-        self.assertTrue("Sí" in out)
+        self.assertTrue("Sí, está en la base." in out)
 
         # Verifica si la cerveza suave marida con ensalada
         out = _capture(ejecutar_consulta, "cerveza_suave marida ensalada?", self.hechos, [])
         self.assertTrue("Sí" in out)
 
         # Verifica si el café marida con postre
-        out = _capture(ejecutar_consulta, "café marida postre?", self.hechos, [])
-        self.assertTrue("Sí" in out)
+        out = _capture(razona, "razona si vino_blanco acompaña_receta quiche_de_salmon?", self.hechos, [])
+        self.assertTrue("Sí, se puede deducir: vino_blanco acompaña_receta quiche_de_salmon con certeza 0.85" in out)
 
 
 # Permite ejecutar este archivo como script

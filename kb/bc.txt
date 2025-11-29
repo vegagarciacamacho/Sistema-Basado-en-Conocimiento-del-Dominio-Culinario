@@ -164,7 +164,7 @@ hojaldre hay 2.
 # Ingredientes medidos en miliLitros (mL)
 aceite_oliva hay 600.
 leche hay 5000.
-nata hay 325.
+# nata hay 325.
 miel hay 250.
 vinagre hay 600.
 
@@ -172,8 +172,10 @@ vinagre hay 600.
 # REGLAS DE DISPONIBILIDAD CON RESTRICCIONES
 # --------------------------------------------------
 
-X ingrediente_disponible true <- X es ingrediente, X hay Z. [Z > 0]
-X ingrediente_disponible false <- X es ingrediente, X hay Y. [Y = 0]
+X ingrediente disponible <-  X es ingrediente, X hay Z. [Z > 0]
+X ingrediente  no_disponible<- X es ingrediente, X hay Y. [Y = 0]
+X disponible_si true <- X es Y, Y ingrediente disponible.
+
 
 # --------------------------------------------------
 # SECCIÓN 3: REGLAS DE CLASIFICACIÓN CON PRECEDENCIAS
