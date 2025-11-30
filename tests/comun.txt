@@ -1,0 +1,44 @@
+# Comprobaciones basicas motor inferencia
+t_pinguino t_tipo t_ave .
+
+t_pajaro t_tipo t_ave .
+
+t_pajaro t_tiene t_alas .
+
+t_foca t_tipo t_mamifero .
+
+t_pinguino t_tipo t_ave ?
+T
+
+t_pinguino t_tipo t_mamifero ?
+F
+
+t_demogorgon t_tipo t_criatura_fantastica ?
+F
+
+t_foca t_tipo Que ?
+t_mamifero
+
+Que t_tipo t_ave ?
+t_pinguino, t_pajaro
+
+t_pajaro Rel t_ave ?
+t_tipo
+
+t_pajaro Prop Valor ?
+! tipo ave, tiene alas
+
+Que t_tipo Cual ?
+! pinguino y pajaro ave, foca mamifero
+
+t_pinguino t_tipo t_pez . [0.5]
+
+t_pinguino t_tipo t_pez ?
+T
+
+t_pinguino t_tipo t_pez .
+
+no t_pinguino t_tipo t_pez .
+
+t_pinguino t_tipo t_pez ?
+F
