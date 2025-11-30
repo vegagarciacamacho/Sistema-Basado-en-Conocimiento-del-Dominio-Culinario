@@ -474,10 +474,17 @@ def añadir_hecho(entrada: str, base_conocimiento: list[tuple[Tripleta, Extensio
     """Añade un hecho a la base de conocimiento."""
     try:
         tripleta, extension = _parser.parsear_afirmacion(entrada)
+
+        # Evitar duplicados exactos
+        for h, ext in base_conocimiento:
+            if h == tripleta:
+                print("El hecho ya existe en la base.\n")
+                return
+
         base_conocimiento.append((tripleta, extension))
-        
+
         msg = f"Hecho añadido: {tripleta}"
-        if extension and (extension.difusa or extension.precedencia or 
+        if extension and (extension.difusa or extension.precedencia or
                          extension.restricciones):
             detalles = []
             if extension.difusa is not None:

@@ -56,15 +56,19 @@ def cli():
             elif entrada == "debug!":
                 mostrar_debug(hechos, hechos_deducidos, reglas)
             
-            elif entrada.endswith('.'):
-                # Añadir o revocar hecho
-                if entrada.lower().startswith("no "):
-                    if revocar_hecho(entrada, hechos):
-                        print("Hecho revocado de la memoria de trabajo.\n")
+            elif '.' in entrada and not entrada.endswith('?'):
+                # AÑADIR O REVOCAR HECHOS (con o sin extensión)
+                try:
+                    if entrada.lower().startswith("no "):
+                        if revocar_hecho(entrada, hechos):
+                            print("Hecho revocado de la memoria de trabajo.\n")
+                        else:
+                            print("Hecho no encontrado en la memoria de trabajo.\n")
                     else:
-                        print("Hecho no encontrado en la memoria de trabajo.\n")
-                else:
-                    añadir_hecho(entrada, hechos)
+                        añadir_hecho(entrada, hechos)
+
+                except ParseException as e:
+                    print(f"Error al procesar hecho: {e}\n")
             
             elif entrada.startswith("razona si"):
                 # Razonamiento hacia atrás
