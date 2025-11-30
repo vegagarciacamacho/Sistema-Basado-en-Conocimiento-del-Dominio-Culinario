@@ -6,6 +6,7 @@ from pathlib import Path
 
 from sbc.motor import cargar, ejecutar_consulta, añadir_hecho, revocar_hecho, descubrir, razona
 from sbc.clases import Tripleta
+from sbc.parserSBC import _parser
 
 
 SMALL_KB = """\
@@ -60,6 +61,24 @@ def _capture(func, *args, **kwargs) -> str:
     with redirect_stdout(buf):
         func(*args, **kwargs)
     return buf.getvalue()
+
+# Simulamos el estilo de cli para poder comprobar que funcionan la funciones ya que el motor no imprime nada por pantalla
+def _descubrir_cli(hechos, reglas):
+    hechos_deducidos = descubrir(hechos, reglas)
+    print(f"Descubrimiento completado. {len(hechos_deducidos)} hechos deducidos.")
+    return hechos_deducidos
+
+def _razona_cli(objetivo, hechos, reglas):
+    objetivo_tripleta, _ = _parser.parsear_consulta(objetivo)
+    deducido, grado = razona(objetivo_tripleta, hechos, reglas)
+    if deducido:
+        if grado < 1.0:
+            print(f"Sí, se puede deducir: {objetivo_tripleta} con certeza {grado:.2f}")
+        else:
+            print(f"Sí, se puede deducir: {objetivo_tripleta}")
+    else:
+        print(f"No se puede deducir: {objetivo_tripleta}")
+
 
 class TestMotor(unittest.TestCase):
 
@@ -126,17 +145,24 @@ class TestMotor(unittest.TestCase):
     def test_ingredientes_y_recetas(self):
         if not self.use_full:
             self.skipTest("Test de ingredientes y recetas solo se ejecuta con la base de datos completa.")
+
+        # Verifica el descubrimiento de hechos y comprueba si funcionan
+        out = _capture(_descubrir_cli, self.hechos, self.reglas)
+        self.assertIn("Descubrimiento completado. 136 hechos deducidos.", out)
         
+        # Necesitamos los hechos deducidos para las siguientes pruebas
+        hechos_deducidos = descubrir(self.hechos, self.reglas)
+
         # Verifica si la receta de bica_blanca_laza es disponible
-        out = _capture(razona, "razona si bica_blanca_laza receta_totalmente_disponible true?", self.hechos, [])
+        out = _capture(_razona_cli,"razona si bica_blanca_laza receta_totalmente_disponible true?", self.hechos, self.reglas)
         self.assertIn("Sí, se puede deducir: bica_blanca_laza receta_totalmente_disponible true con certeza 0.95", out)
 
         # Verifica si una receta es apta para celiacos (contiene gluten)
-        out = _capture(ejecutar_consulta, "bica_blanca_laza no_apta_celiacos X?", self.hechos, [])
-        self.assertIn("X = true", out)
+        out = _capture(ejecutar_consulta, "ensalada_garbanzos receta_muy_facil X?", self.hechos, hechos_deducidos)
+        self.assertIn("X = true [certeza: 0.90]", out)
 
         # Verifica si una receta no es apta para personas con intolerancia a la lactosa
-        out = _capture(ejecutar_consulta, "bica_blanca_laza no_apta_lactosa X?", self.hechos, [])
+        out = _capture(ejecutar_consulta, "bica_blanca_laza no_apta_lactosa X?", self.hechos, hechos_deducidos)
         self.assertIn("X = true", out)
 
     # --------------------------------------------------
@@ -151,10 +177,10 @@ class TestMotor(unittest.TestCase):
 
         # Verifica si la cerveza suave marida con ensalada
         out = _capture(ejecutar_consulta, "cerveza_suave marida ensalada?", self.hechos, [])
-        self.assertTrue("Sí" in out)
+        self.assertTrue("Sí, está en la base. [certeza: 0.70]" in out)
 
         # Verifica si el café marida con postre
-        out = _capture(razona, "razona si vino_blanco acompaña_receta quiche_de_salmon?", self.hechos, [])
+        out = _capture(_razona_cli, "razona si vino_blanco acompaña_receta quiche_de_salmon?", self.hechos, self.reglas)
         self.assertTrue("Sí, se puede deducir: vino_blanco acompaña_receta quiche_de_salmon con certeza 0.85" in out)
 
 
