@@ -16,8 +16,8 @@ Sistema experto desarrollado para **Sistemas Basados en Conocimiento (SBC) 2025/
 
 #### Ejemplos de conocimiento
 - Propiedades de ingredientes: `tomate cantidad muchos`, `manzana sabor acido`
-- Maridajes: `vino tinto marida carne`
-- Reglas de inferencia: `receta disponible gazpacho <- tomate disponible despensa`
+- Maridajes: `vino_tinto marida carne`
+- Reglas de inferencia: `tomate ingrediente disponible` <-  `tomate es ingrediente`, `tomate hay 3`. [3 > 0]
 
 ### Uso
 
@@ -41,13 +41,16 @@ uv run -m sbc.cli
 ```
 fdi-sbc-2504/
 ├── sbc/
-│   ├── clases.py     # Tripleta y Sustitucion
-│   ├── cli.py        # Interfaz CLI
-│   └── motor.py      # Motor de inferencia
+│   ├── clases.py         # Tripleta y Sustitucion
+│   ├── cli.py            # Interfaz CLI
+│   ├── manejo_errores.py # Gestión de errores
+│   ├── parserSBC.py      # Parsers para el sistema basado en la sintaxis EBNF
+│   └── motor.py          # Motor de inferencia
 ├── kb/
-│   └── bc.txt        # Base de conocimiento
+│   └── bc.txt            # Base de conocimiento
+├── tests/                # Pruebas
 └── doc/
-    └── doc-bc.txt    # Documentación
+    └── doc-bc.txt        # Documentación
 ```
 ---
 
