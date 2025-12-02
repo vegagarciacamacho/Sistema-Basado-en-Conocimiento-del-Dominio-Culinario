@@ -1,3 +1,59 @@
-Contenido Base de Conocimiento:
+Documentación de la Base de Conocimiento.
 
-- Ingredientes y su información en forma de tripleta (sabor, cantidad, tipo)
+
+## Descripción General ##
+
+Esta base de conocimiento gestiona el dominio culinario y está orientada a la gestión de alérgenos y restricciones dietéticas, 
+la composición de ingredientes y recetas, los maridajes y combinaciones gastronómicas, y la gestión de despensa. 
+El conocimiento está representado mediante hechos y reglas, utilizando tripletas y siguiendo la sintaxis común acordada, 
+incluyendo las xtensiones adicionales.
+
+
+## Estructura de la Base de Conocimiento ##
+
+1. Ingredientes y Propiedades Básicas
+Esta sección describe los ingredientes disponibles, sus propiedades básicas (sabor, color, tipo, etc.), 
+y sus características nutricionales o de origen.
+
+2. Gestión de Despensa
+Aquí se gestionan las cantidades disponibles de los ingredientes en la despensa, y se especifican las unidades 
+de medida (gramos, unidades, mililitros, etc.).
+
+3. Reglas de Disponibilidad con Restricciones
+Define las reglas para determinar si un ingrediente está disponible o no, basado en la cantidad registrada en la despensa.
+
+4. Reglas de Clasificación con Precedencias
+Estas reglas se utilizan para clasificar recetas con base en restricciones dietéticas (como gluten, lactosa, sal), 
+así como criterios nutricionales, tiempo de preparación y coste.
+
+5. Reglas con Lógica Difusa
+Esta sección maneja la clasificación de ingredientes y recetas utilizando grados de certeza, permitiendo la gestión de 
+incertidumbre en las propiedades de los ingredientes y la compatibilidad de los ingredientes en recetas.
+
+6. Combinación de Extensiones
+Recomendaciones de recetas basadas en múltiples criterios como tiempo total de preparación, calorías y disponibilidad de ingredientes. 
+También se incluyen las reglas para recomendar recetas fáciles, económicas y con ciertos valores nutricionales.
+
+7. Composición de Recetas
+Define las recetas disponibles, especificando los ingredientes necesarios en las cantidades requeridas, 
+además de información sobre la dificultad, tiempo de preparación, energía y proteínas que aporta cada receta.
+
+8. Maridajes con Lógica Difusa
+Define las bebidas que mejor maridan con ciertos ingredientes o platos, utilizando reglas de lógica difusa 
+para asignar valores de compatibilidad.
+
+
+## Ejemplos de consultas ##
+Al final de fichero encontramos este apartado con ejemplos de consultas y razonamientos que podemos
+usar y nos sirve tanto para ver si funciona correctamnete como para entender las distintas posibilidades
+que nos da nuestra base de conocimiento.
+
+
+## Consideraciones finales ##
+-Escalabilidad: La base de conocimiento puede ampliarse fácilmente con nuevos ingredientes, recetas y reglas adicionales.
+
+-Flexibilidad: Gracias a la lógica difusa, se puede manejar la incertidumbre y ofrecer recomendaciones 
+personalizadas en función de las preferencias del usuario.
+
+-Extensibilidad: Se pueden agregar nuevas categorías de recetas, restricciones dietéticas y 
+otros criterios a medida que surgen nuevas necesidades.

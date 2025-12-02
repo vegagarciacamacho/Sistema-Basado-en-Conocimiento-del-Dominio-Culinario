@@ -169,7 +169,7 @@ miel hay 250.
 vinagre hay 600.
 
 # --------------------------------------------------
-# REGLAS DE DISPONIBILIDAD CON RESTRICCIONES
+# SECCIÓN 3: REGLAS DE DISPONIBILIDAD CON RESTRICCIONES
 # --------------------------------------------------
 
 X ingrediente disponible <-  X es ingrediente, X hay Z. [Z > 0]
@@ -177,7 +177,7 @@ X ingrediente no_disponible <- X es ingrediente, X hay Y. [Y = 0]
 X disponible_si true <- X es T, T ingrediente disponible.
 
 # --------------------------------------------------
-# SECCIÓN 3: REGLAS DE CLASIFICACIÓN CON PRECEDENCIAS
+# SECCIÓN 4: REGLAS DE CLASIFICACIÓN CON PRECEDENCIAS
 # --------------------------------------------------
 
 # Alta prioridad (900): Restricciones dietéticas críticas
@@ -197,7 +197,7 @@ X receta_economica true <- X es receta, X coste bajo. [550]
 X receta_ideal_cena true <- X receta_rapida true, X receta_baja_calorias true. [400]
 
 # --------------------------------------------------
-# SECCIÓN 4: REGLAS CON LÓGICA DIFUSA
+# SECCIÓN 5: REGLAS CON LÓGICA DIFUSA
 # --------------------------------------------------
 
 # Clasificación de ingredientes por sabor (con incertidumbre)
@@ -215,7 +215,7 @@ X recomendado_postre true <- X contiene azúcar. [0.8]
 X recomendado_desayuno true <- X tipo para_cocinar. [0.6]
 
 # --------------------------------------------------
-# SECCIÓN 5: COMBINACIÓN DE EXTENSIONES
+# SECCIÓN 6: COMBINACIÓN DE EXTENSIONES
 # --------------------------------------------------
 
 # Recomendación de recetas con múltiples criterios
@@ -230,7 +230,7 @@ X receta_totalmente_disponible true <- X es receta, X contiene Y, Y disponible_s
 X receta_muy_facil true <- X es receta, X dificultad fácil, X tiempo_total T. [0.9; 700; T < 30]
 
 # --------------------------------------------------
-# SECCIÓN 6: COMPOSICIÓN DE RECETAS
+# SECCIÓN 7: COMPOSICIÓN DE RECETAS
 # --------------------------------------------------
 
 ############################
@@ -486,7 +486,7 @@ ensalada_garbanzos energía 732.
 ensalada_garbanzos proteina 33100.
 
 # --------------------------------------------------
-# SECCIÓN 7: MARIDAJES CON LÓGICA DIFUSA
+# SECCIÓN 8: MARIDAJES CON LÓGICA DIFUSA
 # --------------------------------------------------
 
 vino_tinto es bebida.
