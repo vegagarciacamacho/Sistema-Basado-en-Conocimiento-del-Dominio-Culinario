@@ -1,0 +1,79 @@
+===========================================
+DOCUMENTACIÓN DEL ARCHIVO: clases.py
+===========================================
+
+Descripción:
+------------
+Este archivo contiene clases de dominio simplificadas y funcionales para representar estructuras y operaciones relacionadas con sistemas basados en conocimiento (SBC). Incluye clases para manejar tripletas, sustituciones, lógica difusa, hechos y reglas, así como extensiones opcionales.
+
+Clases y Funcionalidades:
+--------------------------
+
+1. **Tripleta**
+   - Representa una tripleta `(sujeto, predicado, objeto)`.
+   - Métodos principales:
+     - `__iter__`: Permite iterar sobre los componentes de la tripleta.
+     - `__repr__`: Devuelve una representación en formato "sujeto predicado objeto".
+     - `__eq__`: Compara la tripleta con otra tripleta o con una lista/tupla de tres elementos.
+     - `es_variable`: Verifica si un componente es una variable (empieza con mayúscula).
+     - `tiene_variables`: Indica si la tripleta contiene variables.
+     - `aplicar`: Aplica una sustitución a la tripleta, reemplazando variables por valores.
+
+2. **Sustitucion**
+   - Diccionario especializado para manejar sustituciones de variables.
+   - Métodos principales:
+     - `es_compatible_con`: Verifica si una asignación es compatible con las existentes.
+     - `agregar`: Intenta agregar una nueva asignación si es compatible.
+     - `componer`: Combina dos sustituciones, verificando compatibilidad.
+     - `__repr__`: Devuelve una representación legible de las sustituciones.
+
+3. **LogicaDifusa**
+   - Representa valores y operaciones de lógica difusa.
+   - Métodos principales:
+     - T-Normas (operadores AND difusos):
+       - `t_min`: Calcula el mínimo (Zadeh).
+       - `t_producto`: Calcula el producto (Larsen).
+       - `t_lukasiewicz`: Calcula la T-norma de Lukasiewicz.
+     - S-Normas (operadores OR difusos):
+       - `s_max`: Calcula el máximo (Zadeh).
+       - `s_suma_probabilistica`: Calcula la suma probabilística.
+       - `s_lukasiewicz`: Calcula la S-norma de Lukasiewicz.
+     - Implicaciones difusas:
+       - `impl_mamdani`: Calcula la implicación de Mamdani (mínimo).
+       - `impl_larsen`: Calcula la implicación de Larsen (producto).
+       - `impl_zadeh`: Calcula la implicación de Zadeh.
+     - Agregación:
+       - `agregacion_max`: Realiza agregación por máximo.
+       - `agregacion_suma`: Realiza agregación por suma acotada.
+
+4. **Extension**
+   - Representa extensiones opcionales para tripletas, hechos o reglas.
+   - Atributos:
+     - `difusa`: Valor de lógica difusa asociado.
+     - `precedencia`: Nivel de precedencia.
+     - `restricciones`: Lista de restricciones adicionales.
+   - Métodos principales:
+     - `__repr__`: Devuelve una representación legible de las extensiones.
+
+5. **Hecho**
+   - Representa un hecho en la base de conocimiento.
+   - Atributos:
+     - `tripleta`: Tripleta asociada al hecho.
+     - `extension`: Extensiones opcionales.
+   - Métodos principales:
+     - `__repr__`: Devuelve una representación del hecho.
+
+6. **Regla**
+   - Representa una regla de producción en forma de "consecuente <- antecedentes".
+   - Atributos:
+     - `consecuente`: Tripleta que representa el consecuente.
+     - `antecedentes`: Lista de tripletas que representan los antecedentes.
+     - `extension`: Extensiones opcionales.
+   - Métodos principales:
+     - `__repr__`: Devuelve una representación de la regla.
+
+Notas adicionales:
+------------------
+- El archivo está diseñado para ser extensible, permitiendo la implementación de nuevas funcionalidades en el futuro.
+- Las clases relacionadas con lógica difusa permiten modelar sistemas con incertidumbre.
+- Las clases `Hecho` y `Regla` son fundamentales para representar bases de conocimiento y sistemas de inferencia.

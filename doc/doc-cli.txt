@@ -1,0 +1,65 @@
+===========================================
+DOCUMENTACIÓN DEL ARCHIVO: cli.py
+===========================================
+
+Descripción:
+------------
+Este archivo implementa una interfaz de línea de comandos (CLI) simplificada para interactuar con una base de conocimiento (BC) en un sistema basado en conocimiento (SBC). Permite cargar, consultar y modificar la base de conocimiento, así como realizar razonamientos hacia adelante y hacia atrás.
+
+Dependencias:
+-------------
+- `click`: Para manejar la interfaz de línea de comandos.
+- `pathlib.Path`: Para manejar rutas de archivos.
+- `pyparsing.ParseException`: Para manejar errores de análisis sintáctico.
+- Módulos internos:
+  - `sbc.motor`: Contiene funciones principales para cargar, descubrir, razonar y manipular la base de conocimiento.
+  - `sbc.parserSBC`: Contiene el analizador para procesar consultas y hechos.
+
+Funciones y Comandos:
+----------------------
+
+1. **cli()**
+   - Punto de entrada principal de la CLI.
+   - Funcionalidades principales:
+     - Cargar la base de conocimiento desde el archivo `kb/bc.txt`.
+     - Iniciar un bucle interactivo para procesar comandos del usuario.
+     - Manejar errores comunes como archivos no encontrados o errores de sintaxis.
+
+2. **_mostrar_ayuda()**
+   - Muestra una lista de comandos disponibles y su descripción.
+
+Comandos Disponibles:
+---------------------
+- **salir | exit | s**: Finaliza la sesión interactiva.
+- **?**: Realiza una consulta sobre la base de conocimiento. Ejemplo: `tomate tipo X?`.
+- **.**: Añade o revoca hechos en la base de conocimiento. Ejemplo: `tomate color rojo.`.
+  - Para revocar un hecho, usa el prefijo `no`. Ejemplo: `no tomate color rojo.`.
+- **cargar!**: Recarga la base de conocimiento desde el archivo.
+- **descubrir!**: Realiza encadenamiento hacia adelante para deducir nuevos hechos.
+- **razona si ... ?**: Realiza encadenamiento hacia atrás para verificar si un hecho puede deducirse. Ejemplo: `razona si tomate tipo X?`.
+- **debug!**: Muestra el estado completo de la base de conocimiento en memoria.
+
+Flujo de Ejecución:
+-------------------
+1. **Carga de la Base de Conocimiento**:
+   - Se carga automáticamente desde el archivo `kb/bc.txt` al iniciar la CLI.
+   - Si el archivo no existe, se muestra un error.
+
+2. **Bucle Interactivo**:
+   - El usuario puede ingresar comandos para interactuar con la base de conocimiento.
+   - Los comandos se procesan y ejecutan según su tipo:
+     - Consultas (`?`).
+     - Modificaciones de hechos (`.`).
+     - Comandos especiales (`cargar!`, `descubrir!`, etc.).
+
+3. **Procesamiento de Errores**:
+   - Maneja errores comunes como:
+     - Archivo de base de conocimiento no encontrado.
+     - Errores de sintaxis en consultas o hechos.
+     - Excepciones generales durante el razonamiento.
+
+Notas Adicionales:
+------------------
+- El archivo `kb/bc.txt` debe contener la base de conocimiento inicial en un formato compatible.
+- La CLI está diseñada para ser extensible, permitiendo agregar nuevos comandos o funcionalidades en el futuro.
+- Los comandos de razonamiento (`razona si ... ?`) permiten trabajar con lógica difusa, devolviendo un grado de certeza cuando corresponde.

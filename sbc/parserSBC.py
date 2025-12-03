@@ -1,14 +1,5 @@
 # sbc/parserSBC.py
 # Descripción: Implementación de parsers para el sistema basado en la sintaxis EBNF.
-#              Utiliza la librería pyparsing para definir los parsers de:
-#              - Tripletas
-#              - Consultas (simples y de razonamiento)
-#              - Afirmaciones
-#              - Negaciones
-#              - Reglas
-#              - Líneas completas del archivo de base de conocimiento
-#              Cada parser convierte cadenas de texto en instancias de las clases
-#              definidas en sbc.clases.py, facilitando la interacción con el motor
 
 from sbc.clases import Tripleta, Regla, Extension, Hecho, LogicaDifusa
 from pyparsing import (

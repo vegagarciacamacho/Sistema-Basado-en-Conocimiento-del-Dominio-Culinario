@@ -1,0 +1,100 @@
+===========================================
+DOCUMENTACIÓN DEL ARCHIVO: parserSBC.py
+===========================================
+
+Descripción:
+------------
+Este módulo implementa parsers para interpretar la sintaxis de un sistema basado en conocimiento (SBC). Utiliza la biblioteca `pyparsing` para definir y procesar la gramática basada en EBNF. Los parsers permiten analizar tripletas, reglas, afirmaciones, consultas y extensiones opcionales.
+
+Clases y Funciones:
+-------------------
+
+1. **Clase `ParserSBC`**
+   - Implementa un singleton que contiene todos los parsers necesarios para el sistema.
+   - Se inicializa una sola vez y se reutiliza en todas las funciones.
+   - Métodos principales:
+     - `_inicializar_parsers`: Define la gramática EBNF para los diferentes elementos del sistema.
+     - `parsear_tripleta`: Analiza una tripleta en formato de texto.
+     - `parsear_consulta`: Analiza una consulta, detectando si es razonamiento o consulta simple.
+     - `parsear_afirmacion`: Analiza una afirmación con posible extensión.
+     - `parsear_negacion`: Analiza una negación.
+     - `parsear_linea_archivo`: Analiza una línea del archivo de base de conocimiento, identificando si es una regla, afirmación o tripleta.
+     - `_parsear_extension`: Extrae y procesa los datos de extensión (difusa, precedencia, restricciones).
+
+2. **Gramática EBNF**
+   - **Términos básicos**:
+     - `literal`: Palabras que comienzan con minúsculas o números.
+     - `variable`: Palabras que comienzan con mayúsculas.
+     - `termino`: Puede ser un `literal` o una `variable`.
+   - **Tripleta**:
+     - Formato: `termino termino termino`.
+   - **Extensiones opcionales**:
+     - `difusa`: Valor entre 0.0 y 1.0.
+     - `precedencia`: Entero de 3 dígitos (000-999).
+     - `restriccion`: Restricciones en formato `(variable operador valor)`.
+   - **Consulta**:
+     - Formato simple: `tripleta ?`.
+     - Formato razonamiento: `razona si tripleta ?`.
+   - **Afirmación**:
+     - Formato: `tripleta . [extension]`.
+   - **Negación**:
+     - Formato: `no tripleta .`.
+   - **Regla**:
+     - Formato: `tripleta <- tripleta [, tripleta]* . [extension]`.
+   - **Línea de archivo**:
+     - Puede ser una regla, afirmación o tripleta, con soporte para comentarios.
+
+3. **Instancia Global `_parser`**
+   - Se crea una instancia global de la clase `ParserSBC` para facilitar su uso en otros módulos.
+
+Funciones Principales:
+----------------------
+
+1. **parsear_tripleta**
+   - Analiza una tripleta en formato de texto.
+   - Argumentos:
+     - `texto`: Cadena que contiene la tripleta.
+   - Retorna:
+     - Una instancia de `Tripleta`.
+
+2. **parsear_consulta**
+   - Analiza una consulta, detectando si es razonamiento o consulta simple.
+   - Argumentos:
+     - `texto`: Cadena que contiene la consulta.
+   - Retorna:
+     - Una tupla `(Tripleta, es_razonamiento)`.
+
+3. **parsear_afirmacion**
+   - Analiza una afirmación con posible extensión.
+   - Argumentos:
+     - `texto`: Cadena que contiene la afirmación.
+   - Retorna:
+     - Una tupla `(Tripleta, Extension | None)`.
+
+4. **parsear_negacion**
+   - Analiza una negación.
+   - Argumentos:
+     - `texto`: Cadena que contiene la negación.
+   - Retorna:
+     - Una instancia de `Tripleta`.
+
+5. **parsear_linea_archivo**
+   - Analiza una línea del archivo de base de conocimiento.
+   - Argumentos:
+     - `texto`: Línea del archivo.
+   - Retorna:
+     - Una tupla `(tipo, contenido)` donde `tipo` puede ser `'regla'`, `'hecho'` o `'tripleta'`.
+
+6. **_parsear_extension**
+   - Extrae y procesa los datos de extensión (difusa, precedencia, restricciones).
+   - Argumentos:
+     - `resultado`: Resultado del parser que contiene los datos de la extensión.
+   - Retorna:
+     - Una instancia de `Extension` o `None`.
+
+Notas Adicionales:
+------------------
+- Este módulo utiliza `pyparsing` para definir y procesar la gramática.
+- Los parsers están diseñados para ser robustos y manejar errores comunes en la sintaxis.
+- La instancia global `_parser` permite reutilizar los parsers en otros módulos del sistema.
+- Las extensiones opcionales (difusa, precedencia, restricciones) permiten trabajar con lógica difusa y reglas avanzadas.

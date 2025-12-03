@@ -1,0 +1,63 @@
+===========================================
+DOCUMENTACIÓN DEL ARCHIVO: manejo_errores.py
+===========================================
+
+Descripción:
+------------
+Este módulo está diseñado para manejar y visualizar errores de manera personalizada en el sistema de bases de conocimiento (SBC). Proporciona funciones para emitir advertencias (warnings) con un formato visual mejorado, utilizando colores y mensajes descriptivos.
+
+Clases y Funciones:
+-------------------
+
+1. **Clase `Color`**
+   - Contiene códigos ANSI para aplicar colores y estilos al texto en la terminal.
+   - Atributos principales:
+     - `ROJO`: Texto en color rojo.
+     - `AMARILLO`: Texto en color amarillo.
+     - `AZUL`: Texto en color azul.
+     - `VERDE`: Texto en color verde.
+     - `RESET`: Restablece el color y estilo del texto.
+     - `NEGRITA`: Aplica estilo en negrita.
+
+2. **`formatwarning_personalizado`**
+   - Personaliza el formato de los warnings emitidos por el módulo `warnings`.
+   - Características:
+     - Aplica color amarillo al tipo de advertencia.
+     - Omite información innecesaria como el archivo y la línea de código.
+   - Argumentos:
+     - `message`: Mensaje de advertencia.
+     - `category`: Categoría de la advertencia.
+     - `filename`: Nombre del archivo (no se utiliza en el formato).
+     - `lineno`: Número de línea (no se utiliza en el formato).
+     - `line`: Línea de código (opcional, no se utiliza).
+
+3. **`advertir_error_sintaxis`**
+   - Emite un warning para errores de sintaxis con un formato visual detallado.
+   - Características:
+     - Muestra el número de línea y el contenido de la línea con el error.
+     - Indica la posición exacta del error con un símbolo `^`.
+     - Incluye un mensaje descriptivo del error.
+   - Argumentos:
+     - `num_linea`: Número de línea donde ocurrió el error.
+     - `texto`: Contenido de la línea con el error.
+     - `columna`: Columna donde se detectó el error (opcional).
+     - `mensaje`: Mensaje descriptivo del error.
+
+4. **`advertir_error_general`**
+   - Emite un warning para errores generales (no relacionados con sintaxis).
+   - Características:
+     - Similar a `advertir_error_sintaxis`, pero sin indicar una columna específica.
+     - Diseñado para errores de lógica o ejecución.
+   - Argumentos:
+     - `num_linea`: Número de línea donde ocurrió el error.
+     - `texto`: Contenido de la línea con el error.
+     - `mensaje`: Mensaje descriptivo del error.
+
+5. **Configuración del Formato de Warnings**
+   - Al importar este módulo, se aplica automáticamente el formato personalizado definido en `formatwarning_personalizado` a todos los warnings emitidos.
+
+Notas Adicionales:
+------------------
+- Este módulo utiliza el paquete estándar `warnings` para emitir advertencias.
+- Los colores y estilos solo se mostrarán correctamente en terminales que soporten códigos ANSI.
+- Es útil para mejorar la experiencia del usuario al depurar errores en sistemas interactivos o basados en línea de comandos.

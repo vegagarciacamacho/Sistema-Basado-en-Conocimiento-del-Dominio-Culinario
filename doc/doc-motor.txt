@@ -1,0 +1,124 @@
+===========================================
+DOCUMENTACIÓN DEL ARCHIVO: motor.py
+===========================================
+
+Descripción:
+------------
+Este módulo implementa el motor de inferencia para un sistema basado en conocimiento (SBC). Proporciona las funciones principales para realizar razonamientos, manejar hechos y reglas, y aplicar lógica difusa. También incluye funciones auxiliares para cargar y manipular la base de conocimiento.
+
+Funciones Principales:
+----------------------
+
+1. **verificar_restricciones**
+   - Verifica si una sustitución cumple con las restricciones definidas.
+   - Argumentos:
+     - `sustitucion`: Diccionario de variables y valores.
+     - `restricciones`: Lista de restricciones en forma `(variable, operador, valor)`.
+   - Retorna:
+     - `True` si todas las restricciones se cumplen, `False` en caso contrario.
+
+2. **combinar_extensiones**
+   - Combina dos extensiones, priorizando restricciones, grados de certeza y precedencia.
+   - Argumentos:
+     - `ext1`, `ext2`: Extensiones a combinar.
+   - Retorna:
+     - Una nueva extensión combinada o `None` si ambas son `None`.
+
+3. **unificar**
+   - Intenta unificar dos tripletas, generando una sustitución si es posible.
+   - Argumentos:
+     - `patron`: Tripleta con posibles variables.
+     - `hecho`: Tripleta concreta.
+     - `sustitucion`: Sustitución preexistente (opcional).
+     - `extension`: Extensión con restricciones (opcional).
+   - Retorna:
+     - Una tupla `(sustitucion, grado_certeza)`.
+
+4. **consultar**
+   - Busca hechos en la base de conocimiento que unifiquen con un patrón.
+   - Argumentos:
+     - `patron`: Tripleta patrón.
+     - `base`: Lista de hechos con extensiones.
+     - `extension`: Extensión de la regla que hace la consulta (opcional).
+   - Retorna:
+     - Un iterador con tuplas `(sustitucion, grado_certeza)`.
+
+5. **aplicar**
+   - Aplica una regla para deducir nuevos hechos, soportando lógica difusa.
+   - Argumentos:
+     - `regla`: Regla a aplicar.
+     - `hechos`: Base de hechos con extensiones.
+     - `norma`: Función para combinar antecedentes (por defecto: mínimo).
+     - `impl_func`: Función de implicación (por defecto: Mamdani).
+   - Retorna:
+     - Un iterador con tuplas `(tripleta_nueva, grado_certeza, extension)`.
+
+6. **razona**
+   - Realiza encadenamiento hacia atrás para probar un objetivo.
+   - Argumentos:
+     - `objetivo`: Tripleta a demostrar.
+     - `hechos`: Base de hechos con extensiones.
+     - `reglas`: Lista de reglas disponibles.
+     - `umbral_certeza`: Grado mínimo para considerar un hecho como cierto.
+     - `visitados`: Conjunto de objetivos ya visitados (para evitar ciclos).
+   - Retorna:
+     - Una tupla `(es_demostrable, grado_certeza)`.
+
+7. **_resolver_antecedentes**
+   - Genera todas las sustituciones que satisfacen una lista de antecedentes.
+   - Argumentos:
+     - `antecedentes`: Lista de tripletas antecedentes.
+     - `hechos`: Base de hechos con extensiones.
+     - `extension`: Extensión de la regla (opcional).
+     - `norma`: Función para combinar grados de certeza.
+   - Retorna:
+     - Un iterador con tuplas `(sustitucion, grado_certeza)`.
+
+8. **cargar**
+   - Carga una base de conocimiento desde un archivo.
+   - Argumentos:
+     - `ruta_archivo`: Ruta al archivo de la base de conocimiento.
+   - Retorna:
+     - Una tupla `(hechos, reglas)`.
+
+9. **descubrir**
+   - Realiza encadenamiento hacia adelante para deducir nuevos hechos.
+   - Argumentos:
+     - `hechos`: Base de hechos conocidos.
+     - `reglas`: Reglas de inferencia.
+   - Retorna:
+     - Una lista de nuevos hechos deducidos con sus extensiones.
+
+10. **ejecutar_consulta**
+    - Procesa una consulta del usuario y muestra los resultados.
+    - Argumentos:
+      - `entrada`: Consulta en formato de texto.
+      - `base_conocimiento`: Lista de hechos base.
+      - `hechos_deducidos`: Lista de hechos deducidos.
+
+11. **añadir_hecho**
+    - Añade un hecho a la base de conocimiento.
+    - Argumentos:
+      - `entrada`: Hecho en formato de texto.
+      - `base_conocimiento`: Lista de hechos base.
+
+12. **revocar_hecho**
+    - Elimina un hecho de la base de conocimiento.
+    - Argumentos:
+      - `entrada`: Hecho en formato de texto.
+      - `base_conocimiento`: Lista de hechos base.
+    - Retorna:
+      - `True` si el hecho fue eliminado, `False` en caso contrario.
+
+13. **mostrar_debug**
+    - Muestra toda la base de conocimiento en memoria, incluyendo hechos y reglas.
+    - Argumentos:
+      - `hechos`: Lista de hechos base.
+      - `hechos_deducidos`: Lista de hechos deducidos.
+      - `reglas`: Lista de reglas.
+
+Notas Adicionales:
+------------------
+- Este módulo soporta lógica difusa, permitiendo trabajar con grados de certeza en lugar de valores booleanos.
+- Las funciones están diseñadas para ser utilizadas tanto en el CLI como en otros módulos del sistema.
+- El archivo de base de conocimiento debe estar en un formato compatible con el analizador definido en `parserSBC`.

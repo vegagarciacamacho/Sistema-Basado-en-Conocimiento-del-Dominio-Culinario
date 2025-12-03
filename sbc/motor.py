@@ -1,19 +1,5 @@
 # sbc/motor.py
-# =============================================================================
-# Módulo: motor
-#
-# Descripción:
-#   Motor de inferencia simplificado para un sistema basado en conocimiento.
-#   Implementa las funciones core que el profesor especificó:
-#   - unificar: une dos tripletas generando sustituciones
-#   - consultar: busca hechos que unifiquen con un patrón
-#   - aplicar: aplica una regla dados sus antecedentes probados
-#   - razona: encadenamiento hacia atrás (backward chaining)
-#
-#   Funciones auxiliares para el CLI:
-#   - cargar: lee archivo de base de conocimiento
-#   - descubrir: encadenamiento hacia adelante (forward chaining)
-# =============================================================================
+# Descripción: Motor de inferencia para el sistema de bases de conocimiento
 
 from pathlib import Path
 from typing import Iterator, Callable
