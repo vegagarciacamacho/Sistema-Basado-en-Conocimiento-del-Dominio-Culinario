@@ -238,6 +238,7 @@ X receta_muy_facil true <- X es receta, X dificultad fácil, X tiempo_total T. [
 ############################
 
 bica_blanca_laza es receta.
+bica_blanca_laza es postre.
 
 bica_blanca_laza contiene ingrediente001.
 ingrediente001 es nata.
@@ -269,6 +270,7 @@ bica_blanca_laza proteina 2840.
 ############################
 
 espaguetis_con_salmon es receta.
+espaguetis_con_salmon es segundo_plato.
 
 espaguetis_con_salmon contiene ingrediente006.
 ingrediente006 es espaguetis.
@@ -311,6 +313,7 @@ espaguetis_con_salmon proteina 37500.
 ############################
 
 lentejas_con_quinoa es receta.
+lentejas_con_quinoa es primer_plato.
 
 lentejas_con_quinoa contiene ingrediente015.
 ingrediente015 es lentejas.
@@ -353,6 +356,7 @@ lentejas_con_quinoa proteina 11000.
 ############################
 
 muslos_de_pollo es receta.
+muslos_de_pollo es segundo_plato.
 
 muslos_de_pollo contiene ingrediente027.
 ingrediente027 es pollo.
@@ -391,6 +395,7 @@ muslos_de_pollo proteina 45980.
 ############################
 
 quiche_de_salmon es receta.
+quiche_de_salmon es primer_plato.
 
 quiche_de_salmon contiene ingrediente037.
 ingrediente037 es hojaldre.
@@ -441,6 +446,7 @@ quiche_de_salmon proteina 28970.
 ############################
 
 ensalada_garbanzos es receta.
+ensalada_garbanzos es primer_plato.
 
 ensalada_garbanzos contiene ingrediente048.
 ingrediente048 es huevo.
@@ -485,6 +491,42 @@ ensalada_garbanzos tiempo_total 15.
 ensalada_garbanzos energía 732.
 ensalada_garbanzos proteina 33100.
 
+############################ 
+# Tarta de Manzana Fácil
+############################
+
+tarta_manzana es receta.
+tarta_manzana es postre.
+
+tarta_manzana contiene ingrediente001.
+ingrediente057 es manzana.
+ingrediente057 necesita 3.
+
+tarta_manzana contiene ingrediente002.
+ingrediente058 es azúcar.
+ingrediente058 necesita 150.
+
+tarta_manzana contiene ingrediente003.
+ingrediente059 es harina_trigo.
+ingrediente059 necesita 200.
+
+tarta_manzana contiene ingrediente004.
+ingrediente060 es huevo.
+ingrediente060 necesita 3.
+
+tarta_manzana contiene ingrediente006.
+ingrediente061 es leche.
+ingrediente061 necesita 100.
+
+tarta_manzana raciones 6.
+tarta_manzana coste bajo.
+tarta_manzana dificultad fácil.
+tarta_manzana preparación 15.
+tarta_manzana cocinado 30.
+tarta_manzana tiempo_total 45.
+tarta_manzana energía 320.
+tarta_manzana proteina 3000.
+
 # --------------------------------------------------
 # SECCIÓN 8: MARIDAJES CON LÓGICA DIFUSA
 # --------------------------------------------------
@@ -507,6 +549,33 @@ agua marida todo. [0.5]
 
 # Regla de maridaje con lógica difusa
 Bebida acompaña_receta Receta <- Receta es receta, Receta contiene Ingrediente, Ingrediente es X, X contiene Tipo, Bebida marida Tipo, Bebida es bebida. [0.85; 750]
+
+# --------------------------------------------------
+# SECCIÓN 9: PLANIFICACIÓN DE MENÚS
+# --------------------------------------------------
+
+# Reglas de definición de menús
+X menu_disponible true <- X es menu, X contiene primer_plato, X contiene segundo_plato, X contiene postre.
+
+X contiene primer_plato <- X contiene Y, Y es receta, Y receta_totalmente_disponible true, Y es primer_plato.
+X contiene segundo_plato <- X contiene Y, Y es receta, Y receta_totalmente_disponible true, Y es segundo_plato.
+X contiene postre <- X contiene Y, Y es receta, Y receta_totalmente_disponible true, Y es postre.
+
+# Definición de menu de prueba
+menu1 es menu.
+menu1 contiene ensalada_garbanzos.
+menu1 contiene muslos_de_pollo.
+menu1 contiene bica_blanca_laza.
+
+menu2 es menu.
+menu2 contiene lentejas_con_quinoa.  # Primer plato
+menu2 contiene muslos_de_pollo.  # Segundo plato
+menu2 contiene tarta_manzana.  # Postre
+
+menu3 es menu.
+menu3 contiene quiche_de_salmon.  # Primer plato
+menu3 contiene espaguetis_con_salmon.  # Segundo plato
+menu3 contiene bica_blanca_laza.  # Postre
 
 # --------------------------------------------------
 # EJEMPLOS DE CONSULTAS PARA PROBAR
@@ -547,7 +616,6 @@ Bebida acompaña_receta Receta <- Receta es receta, Receta contiene Ingrediente,
 # X receta_alta_proteina true?
 # X receta_baja_calorias true?
 # X receta_rapida true?
-#
 #
 # === LISTAS DE INGREDIENTES ===
 # X ingrediente disponible? -> Para saber la disponibilidad de ingredientes
