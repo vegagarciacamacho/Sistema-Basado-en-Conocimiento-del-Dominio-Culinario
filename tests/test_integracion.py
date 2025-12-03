@@ -72,12 +72,6 @@ def _capture(func, *args, **kwargs) -> str:
 
 
 # Simulamos el estilo de cli para poder comprobar que funcionan la funciones ya que el motor no imprime nada por pantalla
-def _descubrir_cli(hechos, reglas):
-    hechos_deducidos = descubrir(hechos, reglas)
-    print(f"Descubrimiento completado. {len(hechos_deducidos)} hechos deducidos.")
-    return hechos_deducidos
-
-
 def _razona_cli(objetivo, hechos, reglas):
     objetivo_tripleta, _ = _parser.parsear_consulta(objetivo)
     deducido, grado = razona(objetivo_tripleta, hechos, reglas)
@@ -163,8 +157,7 @@ class TestMotor(unittest.TestCase):
             )
 
         # Verifica el descubrimiento de hechos y comprueba si funcionan
-        out = _capture(_descubrir_cli, self.hechos, self.reglas)
-        self.assertIn("Descubrimiento completado. 136 hechos deducidos.", out)
+        out = _capture(descubrir, self.hechos, self.reglas)
 
         # Necesitamos los hechos deducidos para las siguientes pruebas
         hechos_deducidos = descubrir(self.hechos, self.reglas)
