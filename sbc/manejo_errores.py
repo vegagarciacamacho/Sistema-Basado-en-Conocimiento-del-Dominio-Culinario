@@ -4,14 +4,15 @@ en el sistema de bases de conocimiento."""
 
 import warnings
 
+
 # Códigos ANSI para colores
 class Color:
-    ROJO = '\033[91m'
-    AMARILLO = '\033[93m'
-    AZUL = '\033[94m'
-    VERDE = '\033[92m'
-    RESET = '\033[0m'
-    NEGRITA = '\033[1m'
+    ROJO = "\033[91m"
+    AMARILLO = "\033[93m"
+    AZUL = "\033[94m"
+    VERDE = "\033[92m"
+    RESET = "\033[0m"
+    NEGRITA = "\033[1m"
 
 
 def formatwarning_personalizado(message, category, filename, lineno, line=None):
@@ -19,10 +20,12 @@ def formatwarning_personalizado(message, category, filename, lineno, line=None):
     return f"{Color.AMARILLO}{category.__name__}:{Color.RESET} {message}\n"
 
 
-def advertir_error_sintaxis(num_linea: int, texto: str, columna: int = None, mensaje: str = ""):
+def advertir_error_sintaxis(
+    num_linea: int, texto: str, columna: int = None, mensaje: str = ""
+):
     """
     Emite un warning de error de sintaxis con formato visual.
-    
+
     Args:
         num_linea: Número de línea donde ocurrió el error.
         texto: Contenido de la línea con error.
@@ -30,27 +33,24 @@ def advertir_error_sintaxis(num_linea: int, texto: str, columna: int = None, men
         mensaje: Mensaje descriptivo del error.
     """
     # Construir mensaje con indicador visual
-    msg_completo = (
-        f"\n{Color.AZUL}Línea {num_linea}:{Color.RESET}\n"
-        f"  {texto}\n"
-    )
-    
+    msg_completo = f"\n{Color.AZUL}Línea {num_linea}:{Color.RESET}\n  {texto}\n"
+
     if columna is not None:
-        espacios = ' ' * (columna - 1)
+        espacios = " " * (columna - 1)
         msg_completo += (
             f"  {espacios}{Color.ROJO}^{Color.RESET}\n"
             f"  {Color.ROJO}└─ {mensaje}{Color.RESET}"
         )
     else:
         msg_completo += f"  {Color.ROJO}└─ {mensaje}{Color.RESET}"
-    
+
     warnings.warn(msg_completo, SyntaxWarning, stacklevel=2)
 
 
 def advertir_error_general(num_linea: int, texto: str, mensaje: str):
     """
     Emite un warning de error general (no de sintaxis).
-    
+
     Args:
         num_linea: Número de línea donde ocurrió el error.
         texto: Contenido de la línea con error.
@@ -61,7 +61,7 @@ def advertir_error_general(num_linea: int, texto: str, mensaje: str):
         f"  {texto}\n"
         f"  {Color.ROJO}└─ {mensaje}{Color.RESET}"
     )
-    
+
     warnings.warn(msg_completo, RuntimeWarning, stacklevel=2)
 
 

@@ -6,8 +6,13 @@ from pathlib import Path
 from pyparsing import ParseException
 
 from sbc.motor import (
-    cargar, descubrir, razona,
-    ejecutar_consulta, añadir_hecho, revocar_hecho, mostrar_debug
+    cargar,
+    descubrir,
+    razona,
+    ejecutar_consulta,
+    añadir_hecho,
+    revocar_hecho,
+    mostrar_debug,
 )
 from sbc.parserSBC import _parser
 
@@ -15,7 +20,7 @@ from sbc.parserSBC import _parser
 @click.command()
 def cli():
     """Comando para cargar y consultar la base de conocimiento."""
-    archivo_bc = Path(__file__).parent.parent / 'kb' / 'bc.txt'
+    archivo_bc = Path(__file__).parent.parent / "kb" / "bc.txt"
 
     try:
         # Cargar base de conocimiento
@@ -23,7 +28,7 @@ def cli():
         hechos_deducidos = []
 
         print("\nBase de conocimiento cargada correctamente.\n")
-    
+
         # Mostrar comandos disponibles
         _mostrar_ayuda()
 
@@ -42,21 +47,23 @@ def cli():
             if entrada in ("salir", "exit", "s"):
                 print("Sesión finalizada.")
                 break
-            
+
             elif entrada == "cargar!":
                 hechos, reglas = cargar(archivo_bc)
                 hechos_deducidos = []
                 print("Base de conocimiento recargada.\n")
-            
+
             elif entrada == "descubrir!":
                 hechos_deducidos = descubrir(hechos, reglas)
-                print(f"Descubrimiento completado. "
-                      f"{len(hechos_deducidos)} hechos deducidos.\n")
-            
+                print(
+                    f"Descubrimiento completado. "
+                    f"{len(hechos_deducidos)} hechos deducidos.\n"
+                )
+
             elif entrada == "debug!":
                 mostrar_debug(hechos, hechos_deducidos, reglas)
-            
-            elif '.' in entrada and not entrada.endswith('?'):
+
+            elif "." in entrada and not entrada.endswith("?"):
                 # AÑADIR O REVOCAR HECHOS (con o sin extensión)
                 try:
                     if entrada.lower().startswith("no "):
@@ -69,33 +76,37 @@ def cli():
 
                 except ParseException as e:
                     print(f"Error al procesar hecho: {e}\n")
-            
+
             elif entrada.startswith("razona si"):
                 # Razonamiento hacia atrás
                 try:
                     consulta_tripleta, _ = _parser.parsear_consulta(entrada)
-                    
+
                     deducido, grado = razona(consulta_tripleta, hechos, reglas)
                     if deducido and grado < 1.0:
-                        print(f"Sí, se puede deducir: {consulta_tripleta} "
-                              f"con certeza {grado:.2f}\n")
+                        print(
+                            f"Sí, se puede deducir: {consulta_tripleta} "
+                            f"con certeza {grado:.2f}\n"
+                        )
                     elif deducido:
                         print(f"Sí, se puede deducir: {consulta_tripleta}\n")
                     else:
                         print(f"No se puede deducir: {consulta_tripleta}\n")
-                        
+
                 except ParseException as e:
                     print(f"Error de sintaxis: {e.msg}\n")
                 except Exception as e:
                     print(f"Error al procesar razonamiento: {e}\n")
-            
-            elif entrada.endswith('?'):
+
+            elif entrada.endswith("?"):
                 # Consulta
                 ejecutar_consulta(entrada, hechos, hechos_deducidos)
-            
+
             else:
-                print("Entrada no reconocida. Use '?' para consultas, "
-                      "'.' para hechos, o comandos especiales.\n")
+                print(
+                    "Entrada no reconocida. Use '?' para consultas, "
+                    "'.' para hechos, o comandos especiales.\n"
+                )
 
     except FileNotFoundError:
         print(f"Error: El archivo {archivo_bc} no se encuentra.")
@@ -106,10 +117,10 @@ def cli():
 def _mostrar_ayuda():
     """Muestra la ayuda de comandos disponibles."""
     print("Comandos disponibles:")
-    print('  salir | exit | s       - Salir de la sesión')
+    print("  salir | exit | s       - Salir de la sesión")
     print("  ?                      - Consulta. Ej: 'tomate tipo X?'")
     print("  .                      - Añadir/eliminar. Ej: 'tomate color rojo.'\n")
-    
+
     print("Comandos especiales:")
     print("  cargar!                - Recargar base de conocimiento")
     print("  descubrir!             - Encadenamiento hacia adelante")

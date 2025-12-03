@@ -22,33 +22,35 @@ from sbc.parserSBC import _parser
 from pyparsing import ParseException
 from sbc.manejo_errores import advertir_error_sintaxis, advertir_error_general
 
-def verificar_restricciones(sustitucion: Sustitucion, 
-                           restricciones: list[tuple[str, str, int]]) -> bool:
+
+def verificar_restricciones(
+    sustitucion: Sustitucion, restricciones: list[tuple[str, str, int]]
+) -> bool:
     """
     Verifica que una sustitución cumpla todas las restricciones.
-    
+
     Args:
         sustitucion: Diccionario de variables -> valores
         restricciones: Lista de (variable, operador, valor)
-        
+
     Returns:
         True si todas las restricciones se cumplen
     """
     if not restricciones:
         return True
-    
+
     operadores = {
-        '<': lambda x, y: x < y,
-        '<=': lambda x, y: x <= y,
-        '=': lambda x, y: x == y,
-        '>=': lambda x, y: x >= y,
-        '>': lambda x, y: x > y
+        "<": lambda x, y: x < y,
+        "<=": lambda x, y: x <= y,
+        "=": lambda x, y: x == y,
+        ">=": lambda x, y: x >= y,
+        ">": lambda x, y: x > y,
     }
-    
+
     for var, op, valor in restricciones:
         if var not in sustitucion:
             continue  # Variable no sustituida aún
-        
+
         try:
             valor_var = int(sustitucion[var])
             if not operadores[op](valor_var, valor):
@@ -56,17 +58,19 @@ def verificar_restricciones(sustitucion: Sustitucion,
         except (ValueError, KeyError):
             # Si no se puede convertir a entero, la restricción falla
             return False
-    
+
     return True
 
-def combinar_extensiones(ext1: Extension | None, 
-                        ext2: Extension | None) -> Extension | None:
+
+def combinar_extensiones(
+    ext1: Extension | None, ext2: Extension | None
+) -> Extension | None:
     """Combina dos extensiones, priorizando restricciones y grados."""
     if ext1 is None and ext2 is None:
         return None
-    
+
     resultado = Extension()
-    
+
     # Difusa: tomar el mínimo
     if ext1 and ext1.difusa:
         resultado.difusa = ext1.difusa
@@ -76,7 +80,7 @@ def combinar_extensiones(ext1: Extension | None,
             resultado.difusa = LogicaDifusa(valor_difuso)
         else:
             resultado.difusa = ext2.difusa
-    
+
     # Precedencia: tomar la mayor
     if ext1 and ext1.precedencia:
         resultado.precedencia = ext1.precedencia
@@ -85,28 +89,35 @@ def combinar_extensiones(ext1: Extension | None,
             resultado.precedencia = max(resultado.precedencia, ext2.precedencia)
         else:
             resultado.precedencia = ext2.precedencia
-    
+
     # Restricciones: unir ambas listas
     if ext1 and ext1.restricciones:
         resultado.restricciones.extend(ext1.restricciones)
     if ext2 and ext2.restricciones:
         resultado.restricciones.extend(ext2.restricciones)
-    
-    return resultado if (resultado.difusa or resultado.precedencia or 
-                         resultado.restricciones) else None
 
-def unificar(patron: Tripleta, hecho: Tripleta, 
-             sustitucion: Sustitucion = None,
-             extension: Extension = None) -> tuple[Sustitucion | None, float]:
+    return (
+        resultado
+        if (resultado.difusa or resultado.precedencia or resultado.restricciones)
+        else None
+    )
+
+
+def unificar(
+    patron: Tripleta,
+    hecho: Tripleta,
+    sustitucion: Sustitucion = None,
+    extension: Extension = None,
+) -> tuple[Sustitucion | None, float]:
     """
     Unifica dos tripletas considerando extensiones (difusa, restricciones).
-    
+
     Args:
         patron: Tripleta con posibles variables
         hecho: Tripleta concreta
         sustitucion: Sustitución preexistente
         extension: Extensión que puede incluir restricciones
-        
+
     Returns:
         Tupla (sustitucion, grado_certeza)
         - sustitucion: None si falla, Sustitucion si tiene éxito
@@ -116,7 +127,7 @@ def unificar(patron: Tripleta, hecho: Tripleta,
         sustitucion = Sustitucion()
     else:
         sustitucion = Sustitucion(sustitucion)  # Copiar para no mutar
-    
+
     # Unificar cada componente (sujeto, predicado, objeto)
     for p_comp, h_comp in zip(patron, hecho):
         if patron.es_variable(p_comp):
@@ -127,31 +138,33 @@ def unificar(patron: Tripleta, hecho: Tripleta,
             # Es un literal: debe coincidir exactamente
             if p_comp != h_comp:
                 return None, 0.0  # No coincide
-    
+
     # Verificar restricciones si existen
     if extension and extension.restricciones:
         if not verificar_restricciones(sustitucion, extension.restricciones):
             return None, 0.0
-    
+
     # Determinar grado de certeza
     grado = 1.0
     if extension and extension.difusa:
         grado = extension.difusa.valor
-    
+
     return sustitucion, grado
 
 
-def consultar(patron: Tripleta, 
-              base: list[tuple[Tripleta, Extension | None]],
-              extension: Extension = None) -> Iterator[tuple[Sustitucion, float]]:
+def consultar(
+    patron: Tripleta,
+    base: list[tuple[Tripleta, Extension | None]],
+    extension: Extension = None,
+) -> Iterator[tuple[Sustitucion, float]]:
     """
     Genera sustituciones con sus grados de certeza.
-    
+
     Args:
         patron: Tripleta patrón
         base: Lista de (tripleta, extension)
         extension: Extensión de la regla que hace la consulta
-        
+
     Yields:
         Tuplas (sustitucion, grado_certeza)
     """
@@ -164,20 +177,22 @@ def consultar(patron: Tripleta,
         if sustitucion is not None:
             yield sustitucion, grado
 
-def aplicar(regla: Regla, 
-            hechos: list[tuple[Tripleta, Extension | None]],
-            norma: Callable[[float, float], float] = None,
-            impl_func: Callable[[float, float], float] = None
-            ) -> Iterator[tuple[Tripleta, float, Extension | None]]:
+
+def aplicar(
+    regla: Regla,
+    hechos: list[tuple[Tripleta, Extension | None]],
+    norma: Callable[[float, float], float] = None,
+    impl_func: Callable[[float, float], float] = None,
+) -> Iterator[tuple[Tripleta, float, Extension | None]]:
     """
     Aplica una regla con soporte para lógica difusa.
-    
+
     Args:
         regla: Regla a aplicar
         hechos: Base de hechos con extensiones
         t_norma: Función para combinar antecedentes (default: min)
         impl_func: Función de implicación (default: Mamdani)
-        
+
     Yields:
         Tuplas (tripleta_nueva, grado_certeza, extension)
     """
@@ -190,12 +205,11 @@ def aplicar(regla: Regla,
     for sustitucion, grado_antecedentes in _resolver_antecedentes(
         regla.antecedentes, hechos, regla.extension, norma
     ):
-
         # Aplicar implicación difusa
         grado_consecuente = 1.0
         if regla.extension and regla.extension.difusa:
             grado_consecuente = regla.extension.difusa.valor
-        
+
         grado_final = impl_func(grado_antecedentes, grado_consecuente)
 
         # Crear extensión para el nuevo hecho
@@ -203,28 +217,30 @@ def aplicar(regla: Regla,
 
         # Aplicar la sustitución al consecuente
         tripleta_nueva = regla.consecuente.aplicar(sustitucion)
-        
+
         yield tripleta_nueva, grado_final, ext_nueva
 
 
-def razona(objetivo: Tripleta,
-        hechos: list[tuple[Tripleta, Extension | None]],
-        reglas: list[Regla],
-        umbral_certeza: float = 0.5,
-        visitados: set = None) -> tuple[bool, float]:
+def razona(
+    objetivo: Tripleta,
+    hechos: list[tuple[Tripleta, Extension | None]],
+    reglas: list[Regla],
+    umbral_certeza: float = 0.5,
+    visitados: set = None,
+) -> tuple[bool, float]:
     """
     Encadenamiento hacia atrás: intenta probar un objetivo recursivamente.
-    
+
     Args:
         objetivo: Tripleta a demostrar (puede contener variables)
         hechos: Base de hechos con extensiones
         reglas: Reglas de inferencia disponibles
         umbral_certeza: Grado mínimo para considerar un hecho como cierto
         visitados: Objetivos ya visitados (para evitar ciclos)
-        
+
     Returns:
         Tupla (es_demostrable, grado_certeza)
-        
+
     Estrategia:
         1. Si el objetivo está en los hechos → éxito
         2. Si no, buscar reglas cuyo consecuente unifique con el objetivo
@@ -233,13 +249,13 @@ def razona(objetivo: Tripleta,
     """
     if visitados is None:
         visitados = set()
-    
+
     # Evitar ciclos infinitos
     objetivo_str = str(objetivo)
     if objetivo_str in visitados:
         return False, 0.0
     visitados.add(objetivo_str)
-    
+
     # Caso base: el objetivo está directamente en los hechos
     for hecho, ext in hechos:
         sust, grado = unificar(objetivo, hecho)
@@ -250,7 +266,6 @@ def razona(objetivo: Tripleta,
         if grado >= umbral_certeza:
             return True, grado
 
-    
     # Caso recursivo: buscar reglas que puedan probar el objetivo
     max_grado = 0.0
 
@@ -259,49 +274,52 @@ def razona(objetivo: Tripleta,
         sustitucion, _ = unificar(regla.consecuente, objetivo)
         if sustitucion is None:
             continue  # Esta regla no aplica
-        
+
         # Aplicar la sustitución a los antecedentes
-        antecedentes_instanciados = [ant.aplicar(sustitucion) 
-                                     for ant in regla.antecedentes]
-        
+        antecedentes_instanciados = [
+            ant.aplicar(sustitucion) for ant in regla.antecedentes
+        ]
+
         grado_acumulado = 1.0
         todos_probados = True
-        
-       # Intentar probar todos los antecedentes recursivamente
+
+        # Intentar probar todos los antecedentes recursivamente
         for antecedente in antecedentes_instanciados:
             probado, grado_ant = razona(
                 antecedente, hechos, reglas, umbral_certeza, visitados.copy()
             )
-            
+
             if not probado:
                 todos_probados = False
                 break
-            
+
             grado_acumulado = LogicaDifusa.t_min(grado_acumulado, grado_ant)
-        
+
         if todos_probados:
             # Aplicar implicación
             if regla.extension and regla.extension.difusa:
                 grado_regla = regla.extension.difusa.valor
             else:
                 grado_regla = 1.0
-            
+
             grado_final = LogicaDifusa.impl_mamdani(grado_acumulado, grado_regla)
             max_grado = max(max_grado, grado_final)
-            
+
             if grado_final >= umbral_certeza:
                 return True, grado_final
-    
+
     return max_grado >= umbral_certeza, max_grado
 
-def _resolver_antecedentes(antecedentes: list[Tripleta],
-                                    hechos: list[tuple[Tripleta, Extension | None]],
-                                    extension: Extension | None,
-                                    norma: Callable[[float, float], float]
-                                    ) -> Iterator[tuple[Sustitucion, float]]:
+
+def _resolver_antecedentes(
+    antecedentes: list[Tripleta],
+    hechos: list[tuple[Tripleta, Extension | None]],
+    extension: Extension | None,
+    norma: Callable[[float, float], float],
+) -> Iterator[tuple[Sustitucion, float]]:
     """
     Genera todas las sustituciones que satisfacen una lista de antecedentes.
-    
+
     Es una función recursiva que va componiendo sustituciones:
     - Para el primer antecedente, encuentra todas sus posibles sustituciones
     - Para cada una, intenta resolver el resto de antecedentes
@@ -310,16 +328,18 @@ def _resolver_antecedentes(antecedentes: list[Tripleta],
     if not antecedentes:
         yield Sustitucion(), 1.0  # Caso base: no hay antecedentes que satisfacer
         return
-    
+
     primer_ant, *resto = antecedentes
-    
+
     # Resolver el primer antecedente
     for sust_parcial, grado_parcial in consultar(primer_ant, hechos, extension):
         # Aplicar la sustitución parcial al resto de antecedentes
         resto_instanciado = [ant.aplicar(sust_parcial) for ant in resto]
-        
+
         # Resolver el resto recursivamente
-        for sust_resto, grado_resto in _resolver_antecedentes(resto_instanciado, hechos, extension, norma):
+        for sust_resto, grado_resto in _resolver_antecedentes(
+            resto_instanciado, hechos, extension, norma
+        ):
             # Componer ambas sustituciones
             sust_total = sust_parcial.componer(sust_resto)
             if sust_total is not None:
@@ -328,35 +348,37 @@ def _resolver_antecedentes(antecedentes: list[Tripleta],
                 yield sust_total, grado_total
 
 
-def cargar(ruta_archivo: str | Path) -> tuple[list[tuple[Tripleta, Extension | None]], list[Regla]]:
+def cargar(
+    ruta_archivo: str | Path,
+) -> tuple[list[tuple[Tripleta, Extension | None]], list[Regla]]:
     """
     Carga una base de conocimiento desde un archivo.
-    
+
     Args:
         ruta_archivo: Ruta al archivo de base de conocimiento
-        
+
     Returns:
         Tupla (hechos, reglas) con el contenido parseado
     """
     hechos = []
     reglas = []
 
-    with Path(ruta_archivo).open('r', encoding='utf-8') as archivo:
+    with Path(ruta_archivo).open("r", encoding="utf-8") as archivo:
         for num_linea, linea in enumerate(archivo, 1):
             linea = linea.strip()
-            
+
             # Ignorar líneas vacías y comentarios
             if not linea or linea.startswith("#"):
                 continue
 
             try:
                 tipo, contenido = _parser.parsear_linea_archivo(linea)
-                
-                if tipo == 'regla':
+
+                if tipo == "regla":
                     reglas.append(contenido)
                 else:  # 'hecho' o 'tripleta'
                     hechos.append(contenido)
-                    
+
             except ParseException as e:
                 advertir_error_sintaxis(num_linea, linea, e.column, e.msg)
             except Exception as e:
@@ -364,34 +386,37 @@ def cargar(ruta_archivo: str | Path) -> tuple[list[tuple[Tripleta, Extension | N
 
     return hechos, reglas
 
-def descubrir(hechos: list[tuple[Tripleta, Extension | None]],
-            reglas: list[Regla]
-            ) -> list[tuple[Tripleta, Extension | None]]:
+
+def descubrir(
+    hechos: list[tuple[Tripleta, Extension | None]], reglas: list[Regla]
+) -> list[tuple[Tripleta, Extension | None]]:
     """
     Encadenamiento hacia adelante: aplica reglas iterativamente hasta que
     no se puedan deducir más hechos nuevos.
-    
+
     Args:
         hechos: Hechos base conocidos
         reglas: Reglas de inferencia
-        
+
     Returns:
         Lista de nuevos hechos con sus extensiones
     """
     # Ordenar reglas por precedencia (mayor precedencia = mayor prioridad)
     reglas_ordenadas = sorted(
         reglas,
-        key=lambda r: r.extension.precedencia if r.extension and r.extension.precedencia else 500,
-        reverse=True
+        key=lambda r: r.extension.precedencia
+        if r.extension and r.extension.precedencia
+        else 500,
+        reverse=True,
     )
 
     hechos_totales = hechos.copy()
     hechos_nuevos = []
-    
+
     cambio = True
     while cambio:
         cambio = False
-        
+
         for regla in reglas_ordenadas:
             # Aplicar la regla y obtener nuevos consecuentes
             for nuevo_hecho, grado, ext in aplicar(regla, hechos_totales):
@@ -410,27 +435,31 @@ def descubrir(hechos: list[tuple[Tripleta, Extension | None]],
                     hechos_totales.append((nuevo_hecho, ext))
                     hechos_nuevos.append((nuevo_hecho, ext))
                     cambio = True
-    
+
     return hechos_nuevos
 
-def ejecutar_consulta(entrada: str, base_conocimiento: list[Tripleta, Extension | None], 
-                      hechos_deducidos: list[Tripleta, Extension | None]) -> None:
+
+def ejecutar_consulta(
+    entrada: str,
+    base_conocimiento: list[Tripleta, Extension | None],
+    hechos_deducidos: list[Tripleta, Extension | None],
+) -> None:
     """
     Procesa una consulta del usuario y muestra los resultados.
     """
     try:
         consulta_tripleta, es_razonamiento = _parser.parsear_consulta(entrada)
-        
+
         if es_razonamiento:
             print("Use el comando 'razona si' correctamente desde el CLI.\n")
             return
-        
+
         base_total = base_conocimiento + hechos_deducidos
-        
+
         if consulta_tripleta.tiene_variables():
             # Consulta con variables: mostrar todas las sustituciones
             resultados = list(consultar(consulta_tripleta, base_total))
-            
+
             if resultados:
                 for sust, grado in resultados:
                     if sust:  # Si hay variables asignadas
@@ -463,14 +492,15 @@ def ejecutar_consulta(entrada: str, base_conocimiento: list[Tripleta, Extension 
                 else:
                     print(f"Sí, está en la base. [certeza: {g:.2f}]")
 
-                
     except ParseException as e:
         print(f"Error de sintaxis: {e.msg}\n")
     except Exception as e:
         print(f"Error al procesar consulta: {e}\n")
 
 
-def añadir_hecho(entrada: str, base_conocimiento: list[tuple[Tripleta, Extension | None]]) -> None:
+def añadir_hecho(
+    entrada: str, base_conocimiento: list[tuple[Tripleta, Extension | None]]
+) -> None:
     """Añade un hecho a la base de conocimiento."""
     try:
         tripleta, extension = _parser.parsear_afirmacion(entrada)
@@ -484,8 +514,9 @@ def añadir_hecho(entrada: str, base_conocimiento: list[tuple[Tripleta, Extensio
         base_conocimiento.append((tripleta, extension))
 
         msg = f"Hecho añadido: {tripleta}"
-        if extension and (extension.difusa or extension.precedencia or
-                         extension.restricciones):
+        if extension and (
+            extension.difusa or extension.precedencia or extension.restricciones
+        ):
             detalles = []
             if extension.difusa is not None:
                 detalles.append(f"difusa={extension.difusa}")
@@ -494,27 +525,29 @@ def añadir_hecho(entrada: str, base_conocimiento: list[tuple[Tripleta, Extensio
             if extension.restricciones:
                 detalles.append(f"restricciones={len(extension.restricciones)}")
             msg += f" [{'; '.join(detalles)}]"
-        
+
         print(f"{msg}\n")
-        
+
     except ParseException as e:
         print(f"Error de sintaxis: {e.msg}\n")
     except Exception as e:
         print(f"Error al añadir hecho: {e}\n")
 
 
-def revocar_hecho(entrada: str, base_conocimiento: list[tuple[Tripleta, Extension | None]]) -> bool:
+def revocar_hecho(
+    entrada: str, base_conocimiento: list[tuple[Tripleta, Extension | None]]
+) -> bool:
     """Elimina un hecho de la base de conocimiento."""
     try:
         tripleta = _parser.parsear_negacion(entrada)
-        
+
         for i, (hecho, ext) in enumerate(base_conocimiento):
             if hecho == tripleta:
                 del base_conocimiento[i]
                 return True
-        
+
         return False
-        
+
     except ParseException as e:
         print(f"Error de sintaxis: {e.msg}\n")
         return False
@@ -523,35 +556,39 @@ def revocar_hecho(entrada: str, base_conocimiento: list[tuple[Tripleta, Extensio
         return False
 
 
-def mostrar_debug(hechos: list[tuple[Tripleta, Extension | None]], 
-                  hechos_deducidos: list[tuple[Tripleta, Extension | None]], 
-                  reglas: list[Regla]) -> None:
+def mostrar_debug(
+    hechos: list[tuple[Tripleta, Extension | None]],
+    hechos_deducidos: list[tuple[Tripleta, Extension | None]],
+    reglas: list[Regla],
+) -> None:
     """Muestra toda la base de conocimiento en memoria."""
     print("\n" + "=" * 50)
     print("BASE DE CONOCIMIENTO EN MEMORIA")
     print("=" * 50)
-    
+
     print(f"\n--- HECHOS BASE ({len(hechos)}) ---")
     for h, ext in hechos:
         if ext and (ext.difusa or ext.precedencia or ext.restricciones):
             print(f"  {h} {ext}")
         else:
             print(f"  {h}")
-    
+
     print(f"\n--- HECHOS DEDUCIDOS ({len(hechos_deducidos)}) ---")
     for h, ext in hechos_deducidos:
         if ext and (ext.difusa or ext.precedencia or ext.restricciones):
             print(f"  {h} {ext}")
         else:
             print(f"  {h}")
-    
+
     print(f"\n--- REGLAS ({len(reglas)}) ---")
     for regla in reglas:
-        if regla.extension and (regla.extension.difusa or 
-                                regla.extension.precedencia or 
-                                regla.extension.restricciones):
+        if regla.extension and (
+            regla.extension.difusa
+            or regla.extension.precedencia
+            or regla.extension.restricciones
+        ):
             print(f"  {regla} {regla.extension}")
         else:
             print(f"  {regla}")
-    
+
     print("=" * 50 + "\n")

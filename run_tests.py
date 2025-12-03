@@ -13,14 +13,13 @@ console = Console()
 #   RESULTADO PERSONALIZADO
 # ============================================================
 class RichTestResult(unittest.TestResult):
-
     def __init__(self, stream, descriptions, verbosity):
         super().__init__(stream, descriptions, verbosity)
         self.test_files = {}  # mapa: archivo -> lista de tests (name, result)
 
     def _register_test(self, test, status):
         """Guardar resultados por archivo para el resumen final."""
-        file = Path(test.__class__.__module__.replace('.', '/')).name + ".py"
+        file = Path(test.__class__.__module__.replace(".", "/")).name + ".py"
         if file not in self.test_files:
             self.test_files[file] = []
         self.test_files[file].append((test._testMethodName, status))
@@ -61,12 +60,10 @@ class RichTestResult(unittest.TestResult):
         self._register_test(test, "SKIPPED")
 
 
-
 # ============================================================
 #   RUNNER PERSONALIZADO
 # ============================================================
 class RichTestRunner(unittest.TextTestRunner):
-
     resultclass = RichTestResult
 
     def run(self, test):
@@ -90,7 +87,7 @@ class RichTestRunner(unittest.TextTestRunner):
                     "OK": "green",
                     "FAIL": "red",
                     "ERROR": "bold red",
-                    "SKIPPED": "yellow"
+                    "SKIPPED": "yellow",
                 }[status]
                 table.add_row(name, f"[{color}]{status}[/{color}]")
 
@@ -105,7 +102,12 @@ class RichTestRunner(unittest.TextTestRunner):
         glob.add_column("Resultado")
         glob.add_column("Cantidad", justify="right")
 
-        ok = result.testsRun - len(result.failures) - len(result.errors) - len(result.skipped)
+        ok = (
+            result.testsRun
+            - len(result.failures)
+            - len(result.errors)
+            - len(result.skipped)
+        )
         glob.add_row("[green]OK[/green]", str(ok))
         glob.add_row("[red]FAIL[/red]", str(len(result.failures)))
         glob.add_row("[bold red]ERROR[/bold red]", str(len(result.errors)))
@@ -115,17 +117,21 @@ class RichTestRunner(unittest.TextTestRunner):
 
         # Mensaje final
         if result.failures or result.errors:
-            console.print(Panel(
-                "[bold red]Hay fallos en los tests[/bold red]",
-                border_style="red"
-            ))
+            console.print(
+                Panel(
+                    "[bold red]Hay fallos en los tests[/bold red]", border_style="red"
+                )
+            )
         else:
-            console.print(Panel(
-                "[bold green]✔ Todos los tests pasaron correctamente[/bold green]",
-                border_style="green"
-            ))
+            console.print(
+                Panel(
+                    "[bold green]✔ Todos los tests pasaron correctamente[/bold green]",
+                    border_style="green",
+                )
+            )
 
         return result
+
 
 # ============================================================
 #   ENTRY POINT

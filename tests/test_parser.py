@@ -2,20 +2,23 @@ import unittest
 from pyparsing import ParseException
 from sbc.parserSBC import ParserSBC
 
+
 def parse_ext(text):
     parser = ParserSBC()
     resultado = parser.extension.parseString(text, parseAll=True)
     return parser._parsear_extension(resultado)
 
-class TestParserSBCCompleto(unittest.TestCase):
 
+class TestParserSBCCompleto(unittest.TestCase):
     # ---------------------------------------------------------------
     # TRIPLETAS
     # ---------------------------------------------------------------
     def test_tripleta_basica(self):
         p = ParserSBC()
         t = p.parsear_tripleta("juan es_alumno pedro")
-        self.assertEqual((t.sujeto, t.predicado, t.objeto), ("juan", "es_alumno", "pedro"))
+        self.assertEqual(
+            (t.sujeto, t.predicado, t.objeto), ("juan", "es_alumno", "pedro")
+        )
 
     def test_tripleta_con_mayusculas_y_numeros(self):
         p = ParserSBC()
