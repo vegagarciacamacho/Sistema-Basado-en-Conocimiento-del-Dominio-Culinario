@@ -42,6 +42,8 @@ además de información sobre la dificultad, tiempo de preparación, energía y 
 Define las bebidas que mejor maridan con ciertos ingredientes o platos, utilizando reglas de lógica difusa 
 para asignar valores de compatibilidad.
 
+9. Planificación de menús
+Define las reglas y hechos para crear menús con primero, segundo y postre. 
 
 ## Ejemplos de consultas ##
 Al final de fichero encontramos este apartado con ejemplos de consultas y razonamientos que podemos
