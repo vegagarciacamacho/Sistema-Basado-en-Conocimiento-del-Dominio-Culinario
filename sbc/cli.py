@@ -20,14 +20,27 @@ from sbc.parserSBC import _parser
 @click.command()
 def cli():
     """Comando para cargar y consultar la base de conocimiento."""
-    archivo_bc = Path(__file__).parent.parent / "kb" / "bc.txt"
+    # Apuntamos al DIRECTORIO, no al archivo
+    directorio_kb = Path(__file__).parent.parent / "kb"
+
+    hechos = []
+    reglas = []
+    hechos_deducidos = []
 
     try:
-        # Cargar base de conocimiento
-        hechos, reglas = cargar(archivo_bc)
-        hechos_deducidos = []
+        # Cargar TODOS los .txt del directorio
+        archivos = list(directorio_kb.glob("*.txt"))
+        if not archivos:
+            print(f"Advertencia: No se encontraron archivos .txt en {directorio_kb}")
+        
+        for archivo in archivos:
+            print(f"Cargando {archivo.name}...")
+            # Asumimos que cargar devuelve listas/sets. Si devuelve otra cosa, avísame.
+            h, r = cargar(archivo) 
+            hechos.extend(h)
+            reglas.extend(r)
 
-        print("\nBase de conocimiento cargada correctamente.\n")
+        print(f"\nBase de conocimiento cargada: {len(hechos)} hechos, {len(reglas)} reglas.\n")
 
         # Mostrar comandos disponibles
         _mostrar_ayuda()
