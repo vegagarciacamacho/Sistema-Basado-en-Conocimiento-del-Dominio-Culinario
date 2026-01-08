@@ -4,3 +4,6 @@
 [submodule "kb-optativa-Carmen"]
 	path = kb-optativa-Carmen
 	url = https://github.com/matturati/kb-opcional
+[submodule "kb-optativa-daniel"]
+	path = kb-optativa-daniel
+	url = https://github.com/d-ucm/fdi-sbc-optativo.git
