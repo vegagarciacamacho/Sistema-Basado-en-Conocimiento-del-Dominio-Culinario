@@ -399,13 +399,27 @@ def descubrir(
     hechos_totales = hechos.copy()
     hechos_nuevos = []
 
+    # Diccionario para controlar conflictos.
+    control_precedencia = {}
+
     cambio = True
     while cambio:
         cambio = False
 
         for regla in reglas_ordenadas:
+            # Obtener precedencia de la regla actual
+            prec_regla = 0
+            if regla.extension and regla.extension.precedencia is not None:
+                prec_regla = regla.extension.precedencia
+
             # Aplicar la regla y obtener nuevos consecuentes
             for nuevo_hecho, grado, ext in aplicar(regla, hechos_totales):
+                clave_conflicto = (nuevo_hecho.sujeto, nuevo_hecho.predicado)
+
+                if clave_conflicto in control_precedencia:
+                    if control_precedencia[clave_conflicto] > prec_regla:
+                        continue
+
                 # Verificar si ya existe
                 existe = False
                 for t_existente, ext_existente in hechos_totales:
@@ -420,7 +434,14 @@ def descubrir(
                 if not existe:
                     hechos_totales.append((nuevo_hecho, ext))
                     hechos_nuevos.append((nuevo_hecho, ext))
+                    
+                    # Registramos que esta precedencia
+                    control_precedencia[clave_conflicto] = prec_regla
                     cambio = True
+                else:
+                    # Aunque exista, actualizamos el control si esta regla es válida
+                    if clave_conflicto not in control_precedencia:
+                        control_precedencia[clave_conflicto] = prec_regla
 
     return hechos_nuevos
 
