@@ -34,13 +34,10 @@ def cli():
             print(f"Advertencia: No se encontraron archivos .txt en {directorio_kb}")
         
         for archivo in archivos:
-            print(f"Cargando {archivo.name}...")
             # Asumimos que cargar devuelve listas/sets. Si devuelve otra cosa, avísame.
             h, r = cargar(archivo) 
             hechos.extend(h)
             reglas.extend(r)
-
-        print(f"\nBase de conocimiento cargada: {len(hechos)} hechos, {len(reglas)} reglas.\n")
 
         # Mostrar comandos disponibles
         _mostrar_ayuda()
@@ -57,14 +54,27 @@ def cli():
                 continue
 
             # Procesar comandos
-            if entrada in ("salir", "exit", "s"):
+            if entrada.lower() in ("salir", "exit", "s"):
                 print("Sesión finalizada.")
                 break
 
             elif entrada == "cargar!":
-                hechos, reglas = cargar(archivo_bc)
-                hechos_deducidos = []
-                print("Base de conocimiento recargada.\n")
+                # Recargar la base de conocimiento desde el archivo original
+                try:
+                    hechos = []
+                    reglas = []
+                    hechos_deducidos = []
+
+                    archivos = list(directorio_kb.glob("*.txt"))
+                    for archivo in archivos:
+                        h, r = cargar(archivo)
+                        hechos.extend(h)
+                        reglas.extend(r)
+
+                    print("Base de conocimiento recargada.\n")
+
+                except Exception as e:
+                    print(f"Error al recargar la base de conocimiento: {e}")
 
             elif entrada == "descubrir!":
                 hechos_deducidos = descubrir(hechos, reglas)
