@@ -126,7 +126,7 @@ class LogicaDifusa:
     def __init__(self, valor: float):
         if not (0.0 <= valor <= 1.0):
             raise ValueError("El valor debe estar entre 0.0 y 1.0")
-        self.valor = valor
+        self.valor = max(0.0, min(1.0, float(valor)))
 
     def __repr__(self) -> str:
         return f"{self.valor}"
@@ -145,7 +145,7 @@ class LogicaDifusa:
     @staticmethod
     def t_lukasiewicz(a: float, b: float) -> float:
         """T-norma de Lukasiewicz"""
-        return max(0, a + b - 1)
+        return max(0.0, a + b - 1.0)
 
     # S-NORMAS (operadores OR difusos)
     @staticmethod
@@ -161,7 +161,7 @@ class LogicaDifusa:
     @staticmethod
     def s_lukasiewicz(a: float, b: float) -> float:
         """S-norma de Lukasiewicz"""
-        return min(1, a + b)
+        return min(1.0, a + b)
 
     # IMPLICACIONES DIFUSAS
     @staticmethod

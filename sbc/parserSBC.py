@@ -57,8 +57,12 @@ class ParserSBC:
             "precedencia"
         )  # Entero de 3 dígitos [000-999]
         operador = oneOf("< <= = >= >")
+
+        # El valor de la derecha puede ser un número o una variable
+        valor_restriccion = Word(nums) | self.variable
+
         restriccion = Group(
-            self.variable("var") + operador("op") + Word(nums)("valor")
+            self.variable("var") + operador("op") +valor_restriccion("valor")
         )("restriccion*")  # Puede haber múltiples restricciones
 
         # difusa y precedencia mantienen solo la última ocurrencia si aparecieran repetidos
