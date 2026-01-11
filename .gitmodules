@@ -7,3 +7,6 @@
 [submodule "kb-optativa-daniel"]
 	path = kb-optativa-daniel
 	url = https://github.com/d-ucm/fdi-sbc-optativo.git
+[submodule "kb-optativa-vega"]
+	path = kb-optativa-vega
+	url = https://github.com/tudouerr/kb_optativa_reciclaje
