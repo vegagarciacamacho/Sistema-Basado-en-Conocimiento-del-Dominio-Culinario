@@ -31,7 +31,7 @@ def cli():
         # Cargar TODOS los .txt del directorio
         archivos = list(directorio_kb.glob("*.txt"))
         if not archivos:
-            print(f"Advertencia: No se encontraron archivos .txt en {directorio_kb}")
+            raise FileNotFoundError
         
         for archivo in archivos:
             h, r = cargar(archivo) 
@@ -131,7 +131,7 @@ def cli():
                 )
 
     except FileNotFoundError:
-        print(f"Error: El archivo {archivo_bc} no se encuentra.")
+        print(f"Advertencia: No se encontraron archivos .txt en {directorio_kb}")
     except Exception as e:
         print(f"Ha ocurrido un error: {e}")
 
