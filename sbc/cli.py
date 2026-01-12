@@ -34,7 +34,6 @@ def cli():
             print(f"Advertencia: No se encontraron archivos .txt en {directorio_kb}")
         
         for archivo in archivos:
-            # Asumimos que cargar devuelve listas/sets. Si devuelve otra cosa, avísame.
             h, r = cargar(archivo) 
             hechos.extend(h)
             reglas.extend(r)
