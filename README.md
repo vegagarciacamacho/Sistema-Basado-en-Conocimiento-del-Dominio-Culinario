@@ -1,25 +1,24 @@
-# fdi-sbc-2504
-## Sistema Basado en Conocimiento - Dominio Culinario
+# Sistema Basado en Conocimiento - Dominio Culinario
 
 Sistema experto desarrollado para **Sistemas Basados en Conocimiento (SBC) 2025/26**. Implementa un motor de inferencia que trabaja con bases de conocimiento representadas mediante tripletas (sujeto, predicado, objeto).
 
-### Miembros del Equipo
+## Miembros del Equipo
 
 - Carmen Granados
 - Vega García
 - Marcos Poza
 - Daniel Higueras
 
-### Dominio de Conocimiento
+## Dominio de Conocimiento
 
 **Dominio culinario**: gestión de ingredientes, recetas, maridajes y disponibilidad en despensa.
 
-#### Ejemplos de conocimiento
+### Ejemplos de conocimiento
 - Propiedades de ingredientes: `tomate cantidad muchos`, `manzana sabor acido`
 - Maridajes: `vino_tinto marida carne`
 - Reglas de inferencia: `tomate ingrediente disponible` <-  `tomate es ingrediente`, `tomate hay 3`. [3 > 0]
 
-### Uso
+## Uso
 
 ```bash
 # Iniciar el sistema
@@ -36,7 +35,7 @@ uv run -m sbc.cli
 - debug!: muestra todos los hechos y reglas cargados en la memoria del sistema, incluidos los hechos deducidos.
 - salir o exit: finaliza la sesión.
 
-### Estructura
+## Estructura
 
 ```
 fdi-sbc-2504/
